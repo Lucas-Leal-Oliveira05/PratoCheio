@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 # Prato Cheio
 =======
-# Prato Cheio — Bomba
->>>>>>> b5701286b3f81da6ab3aa9445992d77185af02ac
+# Prato Cheio
 
 Projeto da disciplina **Análise, Projeto e Desenvolvimento Ágil**.
 Conecta doadores de alimentos excedentes a ONGs, antes que a comida se perca.
@@ -12,15 +10,9 @@ Conecta doadores de alimentos excedentes a ONGs, antes que a comida se perca.
 
 ## Integrantes
 - Bruno Lima Costa — @brunocosta-dev
-<<<<<<< HEAD
 - Gabriel Vitório Gonçalves — @GabrielVitorioGoncalves
 - Lucas Leal de Oliveira — @lucas-leal-oliveira05
 - Yuri David Arins Cidral — @YuriDavid1
-=======
-- Gabriel Vitório Gonçalves — @GabrielVitorioGolcalves
-- Lucas Leal de Oliveira — @lucas-leal-oliveira05
-- Yuri David Arins Cidral - @YuriDavid1
->>>>>>> b5701286b3f81da6ab3aa9445992d77185af02ac
 
 ## Como rodar
 
