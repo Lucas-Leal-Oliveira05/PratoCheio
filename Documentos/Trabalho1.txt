@@ -1,0 +1,52 @@
+1.Reescrita do Problema
+
+Problema real: 
+Há dificuldade em conectar rapidamente doadores de alimentos e organizações que possam recebê-las, o que faz com que parte dos alimentos 
+seja desperdiçada antes de chegar ao destino adequado.
+
+Solução desejada:
+Desenvolver um software que permita aproximar doadores e ONGs, facilitando o encontro entre as partes e agilizando
+o processo de doação para reduzir o desperdício de alimentos.
+
+2.incertezas que precisam ser resolvidas antes de projetar a solução
+* Como a ONG será validada? 
+É necessário definir como garantir que apenas organizações confiáveis e legalmente registradas possam receber doações.
+
+* Quais tipos de alimentos poderão ser doados? 
+Será necessário definir quais alimentos serão aceitos, contendo os perecíveis, não perecíveis, 
+refeições prontas ou apenas determinadas categorias.
+
+* Quais dados devem ser registrados?
+Quais dados são obrigatórios para doadores e ONGs (nome, endereço, telefone, tipo de alimento, quantidade, validade, horário de retirada etc)? 
+É necessário fazer a definição dos dados.
+
+* Como será feito o processo de correspondência entre doadores e ONGs? 
+É necessário definir os critérios utilizados, como localização, quantidade de alimentos disponível, 
+capacidade de armazenamento e urgência da necessidade.
+
+* omo será garantida a segurança e a confiabilidade das informações? 
+Será necessário definir como serão protegidos os dados dos usuários e como será evitado o uso indevido da plataforma.
+
+3. Restrições de prazos
+
+O sistema deve ser desenvolvido dentro do período definido para o projeto.
+Como limita as soluções possíveis: 
+Devido ao tempo disponível, será necessário priorizar as funcionalidades essenciais, 
+como cadastro de doadores e ONGs, publicação de doações e solicitação de alimentos. 
+Funcionalidades mais complexas, como aplicativo móvel, rastreamento em tempo real ou integração 
+com serviços externos, irão ficar para outros casos.
+ 
+ 
+* Restrição Técnica
+O sistema será desenvolvido como uma aplicação web utilizando as tecnologias definidas
+Como limita as soluções possíveis: 
+A solução deverá ser compatível com essas tecnologias, limitando a adoção de recursos que exigiriam infraestrutura adicional
+ou outras plataformas, como inteligência artificial para recomendação de doações, integração com dispositivos IoT como exemplo.
+
+* Restrição de negócio
+A plataforma terá como objetivo apenas conectar doadores e ONGs, não sendo responsável pela logística do transporte, 
+armazenamento ou pela qualidade dos alimentos doados.
+Como limita as soluções possíveis: 
+O sistema deverá focar na intermediação das doações, deixando a coleta, entrega e conferência dos alimentos 
+sob responsabilidade dos usuários envolvidos. Dessa forma, funcionalidades relacionadas à gestão logística não fazem parte do escopo do projeto.
+ 
