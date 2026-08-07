@@ -30,6 +30,28 @@
 
 ## Hipótese e experimento
 
+
+## Conflitos de prioridade
+Conflito 1 — Simplicidade para o doador / rastreabilidade da vigilância sanitária
+
+Conflito:
+Doador quer cadastrar uma doação rapidamente, sem perder tempo preenchendo muitos dados.
+Vigilância sanitária precisa que as informações da doação sejam registradas para garantir rastreabilidade mínima dos alimentos.
+
+Trade-off:
+Quantidade de informações obrigatórias no cadastro da doação.
+
+O que cada lado perde:
+O doador perde rapidez e facilidade no processo caso existam muitos campos obrigatórios.
+A vigilância sanitária perde controle e capacidade de rastrear a origem e as características do alimento caso faltem informações importantes.
+
+Critério que decide:
+Na primeira versão do sistema, serão obrigatórios apenas os dados definidos como necessários pelo caso: tipo do alimento, quantidade e validade/janela de retirada. Informações adicionais não serão obrigatórias no piloto.
+
+Saída usada:
+Decidir.
+
+
 ## Decisão de análise
 - **Problema:**
 - **Alternativas:**
