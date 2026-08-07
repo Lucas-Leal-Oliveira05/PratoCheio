@@ -11,9 +11,10 @@
 |---|---|---|---|
 
 ## Objetivos de impacto
-1.
-2.
-3.
+1. Tempo médio de coleta de alimentos (em minutos); Atualmente desconhecida, será medida e registrada desde o primeiro dia de execução do projeto piloto; Reduzir 30% o tempo de coleta.
+2. Número de restaurantes cadastrados como doadores de alimentos; Quantidade atual de restaurantes doadores desconhecida, será realizado levantamento e registro da base existente no início do projeto piloto; Ampliar a base de doadores em 20 restaurantes.
+3. Número de ONGs e cozinhas comunitárias cadastradas como receptoras de alimentos; Quantidade atual de ONGs e cozinhas comunitárias desconhecida, será realizado levantamento e registro da base existente no início do projeto piloto; Ampliar a base de receptores em 10 ONGs e cozinhas comunitárias.
+4. Número de pessoas atendidas por meio de ONG's e cozinha comunitárias parceiras; Quantidade atual de beneficiários desconhecida, será levantada e registrada no início do projeto piloto; Ampliar o atendimento em 500 pessoas beneficiadas.
 
 ## Regras de negócio
 
