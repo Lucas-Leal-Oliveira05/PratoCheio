@@ -74,11 +74,57 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
 |1  |Como **doador**, quero cadastrar uma doação informando tipo de alimento, quantidade e validade, para disponibilizar rapidamente os alimentos e evitar desperdício.|Falha em Testável → definidos os campos obrigatórios do cadastro (tipo, quantidade e validade).
 | 2 | Como **Marta**, quero visualizar as doações registradas, para acompanhar os resultados da iniciativa e identificar oportunidades de aumentar o número de doadores.| Falha em Estimável → realizada entrevista para definir os indicadores necessários no painel de acompanhamento.|
 | 3 | Como **representante de uma ONG receptora**, quero visualizar as doações disponíveis, para identificar alimentos que possam atender às necessidades da comunidade.| Falha em Testável → definidos critérios para exibir apenas doações disponíveis e dentro da validade.|
-| 4 | Como **representante de uma ONG receptora**, quero aceitar uma doação disponível, para garantir o recebimento dos alimentos antes que sejam destinados a outra instituição.| Falha em Independente → separada da história de consulta de doações para permitir demonstração isolada.|
+| ★ 4 | Como **representante de uma ONG receptora**, quero aceitar uma doação disponível, para garantir o recebimento dos alimentos antes que sejam destinados a outra instituição.| Falha em Independente → separada da história de consulta de doações para permitir demonstração isolada.|
 | 5 | Como **representante da Vigilância Sanitária**, quero visualizar o tipo do alimento, a quantidade e a validade da doação, para garantir a rastreabilidade mínima dos alimentos distribuídos.| Falha em Pequena → limitado o escopo aos requisitos mínimos exigidos para a primeira iteração.|
 | 6 | **(Fatia 1 do Épico)** Como representante de uma ONG receptora, quero visualizar as doações disponíveis, para identificar oportunidades de coleta para minha instituição.| Falha em Pequena → épico dividido em uma entrega funcional e demonstrável. |
 | 7 | **(Fatia 2 do Épico)** Como representante de uma ONG receptora, quero visualizar os detalhes de uma doação (tipo, quantidade e validade), para decidir se ela atende às necessidades da instituição.| Falha em Estimável → definidos os dados mínimos necessários para a tomada de decisão. |
 | 8 | **(Fatia 3 do Épico)** Como representante de uma ONG receptora, quero reservar uma doação disponível, para garantir sua disponibilidade para coleta.| Falha em Independente → transformada em funcionalidade que pode ser demonstrada separadamente. |
+
+## História Zero
+(Definida na tabela pelo símbolo ★)
+
+**Por que ela?:**
+    Porque esta história valida a principal regra de negócio do sistema, que seria: uma doação disponível dentro da janela de retirada poderá
+    ser aceita por por uma única ONG, e após aceita, deixa de estar disponível para outras ONGs
+
+**O que ficou fora da fatia?:**
+-Cadastro de doadores e autenticação;
+-Cadastro de novas doações;
+-Painel de indicadores da Marta;
+-Cadastro e gerenciamento de ONGs;
+-Gerenciamento de voluntários e entregas;
+-Rastreabilidade e histórico completo das doações;
+-Notificações;
+-Integração com sistemas externos;
+-Priorização automática por distância;
+-Cancelamento de reservas;
+-Confirmação da coleta e da entrega;
+-Funcionalidades específicas da Vigilância Sanitária além dos dados mínimos da doação.
+
+**Por quê ficaram de fora?:**
+-Cadastro de doadores e autenticação: excluído por risco de desviar o foco da validação do fluxo central de disponibilização e reserva das doações; deve ser medido separadamente se o processo de entrada de usuários representa uma barreira à adoção.
+
+-Cadastro de novas doações: excluído por risco de aumentar a fronteira da fatia antes de medir se os usuários realmente conseguem utilizar o fluxo de recebimento de uma doação. A fatia pode utilizar doações previamente cadastradas para validar o comportamento principal.
+
+-Painel de indicadores da Marta: excluído por risco de criar métricas sem dados suficientes para validar sua utilidade, já que ainda não se conhece o volume real de doações nem a adesão das ONGs.
+
+-Cadastro e gerenciamento de ONGs: excluído por risco de introduzir um fluxo administrativo que não é necessário para medir se uma ONG consegue encontrar e reservar uma doação.
+
+-Gerenciamento de voluntários e entregas: excluído por risco de dificultar a medição do gargalo principal, pois ainda não existe evidência de que a coleta seja o maior problema.
+
+-Rastreabilidade e histórico completo: excluído por risco de ampliar o escopo antes de validar o fluxo básico de disponibilização e reserva; nesta fatia já são suficientes os dados mínimos necessários para identificar a doação.
+
+-Notificações: excluídas por risco de implementar um mecanismo de comunicação sem evidência de que ele seja necessário para que as ONGs encontrem e reservem as doações.
+
+-Integrações com sistemas externos: excluídas pela restrição explícita do piloto, que determina que não haverá integração com os sistemas dos restaurantes.
+
+-Priorização automática por distância: excluída por risco de assumir que a proximidade é suficiente para definir a melhor ordem de atendimento antes de medir o comportamento real de coleta.
+
+-Cancelamento de reservas: excluído por risco de adicionar cenários secundários antes de medir o fluxo principal de aceitação de uma doação.
+
+-Confirmação da coleta e da entrega: excluída por risco de antecipar funcionalidades de logística antes de medir se o problema central do piloto está na disponibilização e aceitação das doações.
+
+-Funcionalidades específicas da Vigilância Sanitária além dos dados mínimos: excluídas por risco de ampliar a solução para requisitos regulatórios que não são necessários para validar a hipótese principal do piloto.
 
 
 ## Critérios de aceite
@@ -120,3 +166,4 @@ Decidir.
 
 ## Uso de IA
 Para preenchimento da seção Histórias de usuário utilizamos em todos os 8 itens a IA, no item 5 da tabela realizamos uma alteração no (como...quero...para) pois ela trouxe no scopo como se o representante da vigilância sanitária fosse cadastrar os alimentos, e isso não compete a vigilância pois ela só vai ser o orgão regulamentador.
+Para a descrição da história zero foi utilizada a IA para o suporte na criação das respostas (Porque esta história, o que ficou fora da fatia e por quê). Foram realizadas algumas correções na escrita feita pela IA ,principalmente na parte dos por quês pois, mesmo que deixando explícito o contexto do projeto e a tabela de histórias, ela acabou "alucianando" um pouco nas respostas.
