@@ -88,17 +88,29 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
     ser aceita por por uma única ONG, e após aceita, deixa de estar disponível para outras ONGs
 
 **O que ficou fora da fatia?:**
+
 -Cadastro de doadores e autenticação;
+
 -Cadastro de novas doações;
+
 -Painel de indicadores da Marta;
+
 -Cadastro e gerenciamento de ONGs;
+
 -Gerenciamento de voluntários e entregas;
+
 -Rastreabilidade e histórico completo das doações;
+
 -Notificações;
+
 -Integração com sistemas externos;
+
 -Priorização automática por distância;
+
 -Cancelamento de reservas;
+
 -Confirmação da coleta e da entrega;
+
 -Funcionalidades específicas da Vigilância Sanitária além dos dados mínimos da doação.
 
 **Por quê ficaram de fora?:**
