@@ -140,11 +140,83 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
 
 
 ## Critérios de aceite
-**História X** — Dado … Quando … Então …
+
+### História 1 - Cadastrar uma doação
+
+**Como doador, quero cadastrar uma doação informando tipo de alimento, quantidade e validade, para disponibilizar rapidamente os alimentos e evitar desperdício.**
+
+**Critério 1 - Cadastro com informações obrigatórias**
+
+**Dado** que o doador possui uma doação com tipo de alimento, quantidade e validade informados,
+**Quando** confirmar o cadastro da doação,
+**Então** a doação deve ser registrada com essas informações.
+
+**Critério 2 - Tentativa de cadastro com informações incompletas**
+
+**Dado** que o doador está realizando o cadastro de uma doação,
+**Quando** tentar confirmar o cadastro sem informar o tipo de alimento, a quantidade ou a validade,
+**Então** o sistema deve informar que os dados obrigatórios precisam ser preenchidos.
+
+**Critério 3 - Validade inválida**
+
+**Dado** que o doador está cadastrando uma doação,
+**Quando** informar uma data de validade anterior ou igual à data atual,
+**Então** o sistema deve informar que a validade precisa ser futura para concluir o cadastro.
+
+---
+
+### História 3 - Visualizar doações disponíveis
+
+**Como representante de uma ONG receptora, quero visualizar as doações disponíveis, para identificar alimentos que possam atender às necessidades da comunidade.**
+
+**Critério 1 - Exibição de doações disponíveis**
+
+**Dado** que existem doações cadastradas, disponíveis e dentro da validade ou janela de retirada,
+**Quando** o representante da ONG acessar a área de doações,
+**Então** o sistema deve exibir as doações disponíveis.
+
+**Critério 2 - Não exibição de doações indisponíveis**
+
+**Dado** que existe uma doação aceita por outra ONG ou com prazo de retirada expirado,
+**Quando** o representante da ONG visualizar as doações disponíveis,
+**Então** essa doação não deve ser exibida como disponível.
+
+**Critério 3 - Informações exibidas**
+
+**Dado** que existe uma doação disponível,
+**Quando** o representante da ONG visualizar a doação,
+**Então** deve conseguir identificar o tipo de alimento, a quantidade e a validade ou janela de retirada.
+
+---
+
+### História 4 ★ - Aceitar uma doação disponível (História Zero)
+
+**Como representante de uma ONG receptora, quero aceitar uma doação disponível, para garantir o recebimento dos alimentos antes que sejam destinados a outra instituição.**
+
+**Critério 1 - Aceite de uma doação disponível**
+
+**Dado** que existe uma doação disponível e dentro da validade ou janela de retirada,
+**Quando** o representante da ONG confirmar o aceite da doação,
+**Então** a doação deve ser reservada para essa ONG.
+
+**Critério 2 - Exclusividade da doação**
+
+**Dado** que uma doação já foi aceita por uma ONG,
+**Quando** outra ONG tentar aceitar essa mesma doação,
+**Então** o sistema deve informar que a doação não está mais disponível.
+
+**Critério 3 - Doação aceita deixa de estar disponível**
+
+**Dado** que uma ONG aceitou uma doação disponível,
+**Quando** outra ONG acessar a lista de doações disponíveis,
+**Então** a doação aceita não deve aparecer como disponível para novo aceite.
+
 
 ## Riscos
 | Risco | Probabilidade | Impacto | Mitigação |
 |---|---|---|---|
+| Não conseguir finalizar o Walking Skeleton até o prazo da primeira iteração. | Média | Alta | Até 30/08, a equipe vai focar primeiro no fluxo principal de visualizar e aceitar uma doação. Se faltar tempo, as funcionalidades menos importantes ficam para a próxima iteração. |
+| Mais de uma ONG conseguir aceitar a mesma doação. | Média | Alta | Até 30/08, quem estiver desenvolvendo essa parte vai testar o aceite com mais de uma ONG para verificar se a doação fica indisponível depois do primeiro aceite. |
 
 ## Hipótese e experimento
 
