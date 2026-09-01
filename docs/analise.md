@@ -220,6 +220,27 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
 
 ## Hipótese e experimento
 
+### Hipótese 1 - Adesão dos doadores
+
+Acreditamos que os doadores estarão dispostos a cadastrar suas próprias doações em uma ferramenta simples, sem integração com seus sistemas internos.
+
+Experimento: convidar um pequeno grupo de restaurantes, padarias e mercados do bairro para utilizar um formulário simples de cadastro durante duas semanas.
+
+Saberemos que estamos errados se: menos de 60% dos doadores convidados cadastrarem pelo menos uma doação por semana durante o período de teste.
+
+Como medir: registrar quantos doadores convidados realizaram pelo menos um cadastro de doação por semana.
+
+### Hipótese 2 - Proximidade da ONG
+
+Acreditamos que a proximidade entre a ONG e o doador é um dos principais fatores que determinam a rapidez da coleta.
+
+Experimento: durante o período piloto do sistema, registrar tempo e distância para todas as coletas realizadas e comparar o tempo médio entre diferentes entregas.
+
+Saberemos que estamos errados se: não houver relação significativa entre a distância do doador até a ONG e o tempo necessário para realizar a coleta.
+
+Como medir: registrar a distância aproximada entre doador e ONG e o tempo entre a disponibilização e a coleta de cada doação.
+
+
 
 ## Conflitos de prioridade
 Conflito 1 — Simplicidade para o doador / rastreabilidade da vigilância sanitária
