@@ -264,8 +264,10 @@ Decidir.
 
 
 ## Decisão de análise
-- **Problema:**
+- **Problema:** Para a Iteração avançar, era necessário definir o nível de informação exigido no cadastro de uma doação. Exigir mais informações poderia ampliar a capacidade de rastrear a doação, mas também aumentaria o tempo e o esforço do doador no cadastro. Por outro lado, reduzir a quantidade de informações obrigatórias facilitaria a publicação rápida, mas poderia limitar a rastreabilidade. O problema consistia, portanto, em equilibrar a baixa fricção para o doador com o registro de informações suficientes sobre a doação, mantendo uma fatia pequena e executável para o piloto.
 - **Alternativas:**
+  1. **Cadastro mínimo para o piloto:** exigir somente tipo do alimento, quantidade e validade ou janela de retirada. Essa alternativa simplifica e agiliza o cadastro e mantém menor o escopo da primeira iteração. Em contrapartida, registra menos informações e limita o nível de rastreabilidade disponível no piloto.
+  2. **Cadastro com rastreabilidade ampliada:** exigir informações adicionais às informações mínimas para oferecer maior rastreabilidade das doações. Essa alternativa amplia o nível de rastreabilidade disponível. Em contrapartida, torna o cadastro mais longo para o doador e exige definir e implementar um escopo maior na primeira iteração.
 - **Decisão e justificativa:**
 - **Riscos e limitações:**
 
