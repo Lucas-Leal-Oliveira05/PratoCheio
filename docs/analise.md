@@ -217,6 +217,8 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
 |---|---|---|---|
 | Não conseguir finalizar o Walking Skeleton até o prazo da primeira iteração. | Média | Alta | Até 30/08, a equipe vai focar primeiro no fluxo principal de visualizar e aceitar uma doação. Se faltar tempo, as funcionalidades menos importantes ficam para a próxima iteração. |
 | Mais de uma ONG conseguir aceitar a mesma doação. | Média | Alta | Até 30/08, quem estiver desenvolvendo essa parte vai testar o aceite com mais de uma ONG para verificar se a doação fica indisponível depois do primeiro aceite. |
+|Baixa Adesão das ONGs receptoras ao sistema piloto | Média | Alta | Até o inicio do piloto, iremos realizar demonstrações rápidas com as ONGs parceiras e coletar feedback sobre a facilidade de encontrar e aceitar doações. Caso a adesão seja baixa, simplificar ainda mais o fluxo de visualização e aceite. |
+| Doações expirarem antes de serem aceitas ou coletadas | Média | Média | Durante a primeira iteração, implementar validações para destacar doações próximas do vencimento e realizar testes com diferentes janelas de retirada para verificar se o prazo definido é adequado.|
 
 ## Hipótese e experimento
 
