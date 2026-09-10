@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prato Cheio — Registrar doação</title>
+  <link rel="stylesheet" href="./estilos.css">
+</head>
+<body>
+  <a class="voltar" href="index.html">← voltar</a>
+  <h1>Registrar doação</h1>
+  <p class="subtitulo">Publique os alimentos que sobraram para que uma ONG possa reservá-los.</p>
+ 
+  <fieldset>
+    <legend>Nova doação</legend>
+    <label for="tipo">Tipo de alimento</label>
+    <input id="tipo" placeholder="Ex.: sopa, pão, frutas">
+    <label for="quantidade">Quantidade</label>
+    <input id="quantidade" placeholder="Ex.: 10 porções">
+    <label for="validade">Validade / retirar até</label>
+    <input id="validade" type="date">
+    <button id="publicar">Publicar doação</button>
+  </fieldset>
+ 
+  <div id="aviso"></div>
+ 
+  <h2>Doações publicadas ainda disponíveis</h2>
+  <ul id="lista"></ul>
+ 
+  <script>
+    function mostrarAviso(mensagem, tipo) {
+      const aviso = document.getElementById('aviso');
+      aviso.textContent = mensagem;
+      aviso.className = mensagem ? `aviso ${tipo}` : '';
+    }
+ 
+    async function carregar() {
+      const res = await fetch('/api/doacoes');
+      const doacoes = await res.json();
+      const lista = document.getElementById('lista');
+      lista.innerHTML = doacoes.length
+        ? ''
+        : '<li>Nenhuma doação disponível no momento.</li>';
+      for (const d of doacoes) {
+        const li = document.createElement('li');
+        li.textContent = `${d.tipo} — ${d.quantidade} (até ${d.validade})`;
+        lista.appendChild(li);
+      }
+    }
+ 
+    document.getElementById('publicar').onclick = async () => {
+      const tipo = document.getElementById('tipo').value;
+      const quantidade = document.getElementById('quantidade').value;
+      const validade = document.getElementById('validade').value;
+ 
+      const res = await fetch('/api/doacoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo, quantidade, validade })
+      });
+      const corpo = await res.json();
+ 
+      if (!res.ok) {
+        mostrarAviso(corpo.erro, 'erro');
+      } else {
+        mostrarAviso(`Doação de "${corpo.tipo}" publicada com sucesso.`, 'sucesso');
+        document.getElementById('tipo').value = '';
+        document.getElementById('quantidade').value = '';
+        document.getElementById('validade').value = '';
+      }
+      carregar();
+    };
+ 
+    carregar();
+  </script>
+</body>
+</html>
