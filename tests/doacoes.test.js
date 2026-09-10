@@ -56,7 +56,7 @@ describe('publicar e listar doações', () => {
   it('recusa doação sem os campos obrigatórios', async () => {
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Sopa' }); // faltam quantidade e validade
+      .send({ tipo: 'Sopa' });
  
     expect(res.status).toBe(400);
   });
