@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prato Cheio — Doações disponíveis</title>
+  <link rel="stylesheet" href="./estilos.css">
+</head>
+<body>
+  <a class="voltar" href="index.html">← voltar</a>
+  <h1>Doações disponíveis</h1>
+  <p class="subtitulo">Reserve uma doação para garantir a coleta antes de outra ONG.</p>
+ 
+  <fieldset>
+    <legend>Sua ONG</legend>
+    <label for="ong">Nome da ONG</label>
+    <input id="ong" placeholder="Ex.: ONG Mão Amiga" value="ONG Mão Amiga">
+  </fieldset>
+ 
+  <div id="aviso"></div>
+ 
+  <ul id="lista"></ul>
+ 
+  <script>
+    function mostrarAviso(mensagem, tipo) {
+      const aviso = document.getElementById('aviso');
+      aviso.textContent = mensagem;
+      aviso.className = mensagem ? `aviso ${tipo}` : '';
+    }
+ 
+    async function carregar() {
+      const res = await fetch('/api/doacoes');
+      const doacoes = await res.json();
+      const lista = document.getElementById('lista');
+      lista.innerHTML = doacoes.length
+        ? ''
+        : '<li>Nenhuma doação disponível no momento.</li>';
+      for (const d of doacoes) {
+        const li = document.createElement('li');
+        li.textContent = `${d.tipo} — ${d.quantidade} (até ${d.validade}) `;
+        const botao = document.createElement('button');
+        botao.textContent = 'Reservar para coleta';
+        botao.onclick = async () => {
+          const ong = document.getElementById('ong').value || 'ONG sem nome';
+          const res = await fetch(`/api/doacoes/${d.id}/aceitar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ong })
+          });
+          const corpo = await res.json();
+          if (!res.ok) {
+            mostrarAviso(corpo.erro, 'erro');
+          } else {
+            mostrarAviso(`Doação de "${corpo.tipo}" reservada para ${corpo.ong}.`, 'sucesso');
+          }
+          carregar();
+        };
+        li.appendChild(botao);
+        lista.appendChild(li);
+      }
+    }
+ 
+    carregar();
+  </script>
+</body>
+</html>

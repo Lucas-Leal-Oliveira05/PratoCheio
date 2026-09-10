@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prato Cheio — Administrador</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <a class="voltar" href="index.html">← voltar</a>
+  <h1>Histórico de doações aceitas</h1>
+  <p class="subtitulo">Quem aceitou cada doação e quando.</p>
+ 
+  <div id="aviso"></div>
+ 
+  <table>
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Quantidade</th>
+        <th>ONG</th>
+        <th>Aceita em</th>
+      </tr>
+    </thead>
+    <tbody id="corpo-tabela"></tbody>
+  </table>
+ 
+  <script>
+    function mostrarAviso(mensagem, tipo) {
+      const aviso = document.getElementById('aviso');
+      aviso.textContent = mensagem;
+      aviso.className = mensagem ? `aviso ${tipo}` : '';
+    }
+ 
+    async function carregar() {
+      const res = await fetch('/api/doacoes/historico');
+      const corpo = document.getElementById('corpo-tabela');
+ 
+      if (!res.ok) {
+        const erro = await res.json();
+        mostrarAviso(erro.erro, 'erro');
+        return;
+      }
+ 
+      const historico = await res.json();
+      if (!historico.length) {
+        corpo.innerHTML = '<tr><td colspan="4">Nenhuma doação aceita ainda.</td></tr>';
+        return;
+      }
+ 
+      corpo.innerHTML = '';
+      for (const d of historico) {
+        const linha = document.createElement('tr');
+        linha.innerHTML = `
+          <td>${d.tipo}</td>
+          <td>${d.quantidade}</td>
+          <td>${d.ong}</td>
+          <td>${d.aceita_em ?? '—'}</td>
+        `;
+        corpo.appendChild(linha);
+      }
+    }
+ 
+    carregar();
+  </script>
+</body>
+</html>
