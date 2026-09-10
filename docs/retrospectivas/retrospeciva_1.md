@@ -45,7 +45,7 @@ Divisão proposta para validação pelos integrantes: 25 pontos para cada um, co
 
 Cada integrante deverá validar a pontuação e assinar abaixo:
 
-- Bruno Lima Costa: ____________________
+- Bruno Lima Costa: Bruno Lima Costa
 - Gabriel Vitório Gonçalves: Gabriel Vitorio Gonçalves
 - Lucas Leal de Oliveira: Lucas Leal de Oliveira
 - Yuri David Arins Cidral: Yuri David Arins Cidral
