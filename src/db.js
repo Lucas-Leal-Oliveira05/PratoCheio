@@ -8,16 +8,16 @@
 // algumas ferramentas (como o Vite/Vitest) ainda não o reconhecem como embutido.
 import { createRequire } from 'node:module';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite');
-
+ 
 const ARQUIVO = process.env.DATABASE_FILE || 'dados.sqlite';
-
+ 
 let db;
-
+ 
 export function conexao() {
   if (!db) db = new DatabaseSync(ARQUIVO);
   return db;
 }
-
+ 
 /**
  * Executa uma consulta e devolve { rows }.
  * Use `?` como marcador de parâmetro (evita injeção de SQL):
@@ -30,10 +30,11 @@ export async function query(sql, valores = []) {
   const info = stmt.run(...valores);
   return { rows: [], alteradas: info.changes };
 }
-
+ 
 /** Cria o schema, se ainda não existir. Rodado por `npm run db:migrar` e ao subir o servidor. */
 export async function migrar() {
-  conexao().exec(`
+  const conn = conexao();
+  conn.exec(`
     CREATE TABLE IF NOT EXISTS doacoes (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       tipo        TEXT NOT NULL,
@@ -41,16 +42,23 @@ export async function migrar() {
       validade    TEXT NOT NULL,
       status      TEXT NOT NULL DEFAULT 'disponivel',
       ong         TEXT,
-      criada_em   TEXT NOT NULL DEFAULT (datetime('now'))
+      criada_em   TEXT NOT NULL DEFAULT (datetime('now')),
+      aceita_em   TEXT
     )
   `);
+ 
+  const colunas = conn.prepare('PRAGMA table_info(doacoes)').all();
+  if (!colunas.some((c) => c.name === 'aceita_em')) {
+    conn.exec('ALTER TABLE doacoes ADD COLUMN aceita_em TEXT');
+  }
 }
-
+ 
 /** Apaga todos os dados. Usado pelos testes. */
 export async function limparBanco() {
   conexao().exec('DELETE FROM doacoes');
 }
-
+ 
 export async function encerrar() {
   if (db) { db.close(); db = undefined; }
 }
+ 

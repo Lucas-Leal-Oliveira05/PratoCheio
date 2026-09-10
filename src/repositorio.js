@@ -5,24 +5,48 @@
 // Marcador de parâmetro é `?` (SQL parametrizado evita injeção):
 //   const { rows } = await query('SELECT * FROM doacoes WHERE id = ?', [id]);
 import { query } from './db.js';
-
-// TODO: inserir a doação e devolver a linha criada (dica: INSERT ... RETURNING *).
+ 
+// Insere a doação e devolve a linha criada.
 export async function inserir({ tipo, quantidade, validade }) {
-  throw new Error('não implementado: repositorio.inserir');
+  const { rows } = await query(
+    `INSERT INTO doacoes (tipo, quantidade, validade) VALUES (?, ?, ?) RETURNING *`,
+    [tipo, quantidade, validade]
+  );
+  return rows[0];
 }
-
-// TODO: devolver apenas as doações com status 'disponivel'.
+ 
+// Devolve apenas as doações com status 'disponivel'.
 export async function listarDisponiveis() {
-  throw new Error('não implementado: repositorio.listarDisponiveis');
+  const { rows } = await query(
+    `SELECT * FROM doacoes WHERE status = 'disponivel' ORDER BY criada_em DESC`
+  );
+  return rows;
 }
-
-// TODO: buscar uma doação pelo id (devolver undefined se não existir).
+ 
+// Busca uma doação pelo id. Devolve undefined se não existir.
 export async function buscarPorId(id) {
-  throw new Error('não implementado: repositorio.buscarPorId');
+  const { rows } = await query('SELECT * FROM doacoes WHERE id = ?', [Number(id)]);
+  return rows[0];
 }
-
-// TODO: marcar a doação como aceita pela ONG e devolver a linha atualizada.
-// Pense: como garantir que duas ONGs não aceitem a mesma doação?
+ 
+// Marca a doação como aceita pela ONG e devolve a linha atualizada.
+// A condição `AND status = 'disponivel'` no WHERE garante a exclusividade:
+// o UPDATE só afeta linha nenhuma se a doação já tiver sido aceita por outra
+// ONG entre o momento em que ela foi lida e o momento do aceite — sem essa
+// condição, duas requisições concorrentes poderiam "ganhar" a mesma doação.
 export async function aceitar(id, ong) {
-  throw new Error('não implementado: repositorio.aceitar');
+  const { rows } = await query(
+    `UPDATE doacoes SET status = 'aceita', ong = ?, aceita_em = datetime('now')
+     WHERE id = ? AND status = 'disponivel'
+     RETURNING *`,
+    [ong, Number(id)]
+  );
+  return rows[0];
+}
+ 
+export async function listarAceitas() {
+  const { rows } = await query(
+    `SELECT * FROM doacoes WHERE status = 'aceita' ORDER BY aceita_em DESC`
+  );
+  return rows;
 }
