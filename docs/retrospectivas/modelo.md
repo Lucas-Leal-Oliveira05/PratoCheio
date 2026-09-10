@@ -48,4 +48,4 @@ Cada integrante deverá validar a pontuação e assinar abaixo:
 - Bruno Lima Costa: ____________________
 - Gabriel Vitório Gonçalves: Gabriel Vitorio Gonçalves
 - Lucas Leal de Oliveira: Lucas Leal de Oliveira
-- Yuri David Arins Cidral: ____________________
+- Yuri David Arins Cidral: Yuri David Arins Cidral
