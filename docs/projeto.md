@@ -10,10 +10,15 @@
 | 3 | Exigir tipo de alimento, quantidade e validade ou janela de retirada no cadastro inicial. | A) Exigir somente os dados mínimos; B) exigir dados adicionais para ampliar a rastreabilidade. | **RN01 e RN13**; critérios 1 a 3 da História 1; conflito de prioridade entre cadastro simples para o doador e rastreabilidade para a vigilância sanitária. A **RN12** motiva a alternativa ampliada, mas o histórico completo ficou fora da História Zero. |
 
 ## Tabela de trade-offs (uma decisão em detalhe)
-| Critério | Alternativa A | Alternativa B |
-|---|---|---|
+Decisão escolhida: Quais informações serão obrigatórias no cadastro de doações.
 
-#
+| Critério | Alternativa A: Cadastro com informações essenciais | Alternativa B: Cadastro com informações adicionais |
+|---|---|---|
+| Rapidez no cadastro | Maior, pois exige menos informações do doador | Menor, pois exige o preenchimento de mais informações |
+| Simplicidade para o doador | Maior, tornando o processo mais direto | Menor, tornando o cadastro mais detalhado |
+| Rastreabilidade | Menor, pois são armazenadas apenas as informações essenciais | Maior, pois existem mais informações sobre a doação |
+| Quantidade de informações disponíveis | Menor | Maior |
+| Atendimento às necessidades de fiscalização | Pode fornecer menos informações para consulta | Fornece mais informações para acompanhamento da doação |
 
 ## Diagramas
 (contexto + dados ou componentes — em `docs/` ou como imagem)  
