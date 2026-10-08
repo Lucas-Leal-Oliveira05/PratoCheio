@@ -1,7 +1,7 @@
 # ADR 0001 — Migração de SQLite para Supabase (PostgreSQL)
 
 - **Data:** 08/10/26
-- **Status:** proposta
+- **Status:** Aceito
 
 ## Contexto
 Atualmente, o PratoCheio utiliza SQLite como banco de dados. Essa escolha é adequada para as primeiras etapas do projeto, pois permite executar a aplicação localmente sem configurar um servidor de banco de dados separado.
@@ -140,3 +140,46 @@ RN14 — Expiração automática: doações que ultrapassam a validade ou a jane
 Risco de não concluir o Walking Skeleton: a manutenção do SQLite nas primeiras unidades reduz o trabalho de infraestrutura e prioriza a implementação do fluxo principal.
 
 A migração está relacionada à preparação da persistência e à validação das regras de negócio com PostgreSQL. Ela não garante, por si só, o cumprimento das regras: a aplicação e os testes devem continuar assegurando o comportamento esperado.
+
+
+## Revisão - Backup mensal do banco para Vigilância Sanitária
+
+**Data**: 08/10/26
+**Status**: Valido com complemento de escopo
+
+## O que mudou no contexto?
+
+Foi acrescentado um novo requisito ao projeto: a Vigilância Sanitária solicitará mensalmente uma cópia dos dados armazenados no banco de dados (backup).
+
+Essa mudança exige que o projeto contemple um procedimento de exportação periódica dos dados necessários à rastreabilidade das doações. A exportação deverá incluir, no mínimo, as informações de tipo de alimento, quantidade e validade, além de outros dados relevantes disponíveis, como identificação da doação, estabelecimento doador, ONG destinatária e datas das operações.
+
+Também será necessário definir o formato da cópia, o período abrangido e o prazo de entrega.
+
+## O que deixa de valer?
+
+Nenhuma decisão deixa de valer.
+
+A decisão de migrar do SQLite para PostgreSQL hospedado no Supabase na Unidade 3 permanece válida. Entretanto, a implementação da persistência passa a incluir também a necessidade de exportar os dados mensalmente para atender à solicitação da Vigilância Sanitária.
+
+## O que continua válido no projeto?
+
+Tudo descrito anterioemnte ainda esta válido.
+
+Isso acontece pois o Supabase ainda atende à necessidade de utilizar um banco PostgreSQL compartilhado e gerenciado. O novo requisito acrescenta uma responsabilidade de exportação e entrega dos dados, mas não exige, por si só, a substituição da tecnologia escolhida.
+
+## Consequências
+
+A equipe deverá incluir no planejamento uma rotina mensal de exportação e validação dos dados, definir os responsáveis pela geração e entrega e confirmar com a Vigilância Sanitária o formato esperado.
+
+A exportação deverá ser testada para garantir que contenha os campos exigidos, corresponda aos registros consultados no banco e possa ser aberta ou importada pelo destinatário.
+
+## Validação
+
+A revisão será considerada atendida quando houver um procedimento testado que:
+
+- Gere a cópia mensal a partir dos dados do Supabase.
+- Inclua os campos de rastreabilidade definidos com a Vigilância Sanitária.
+- Permita conferir os registros exportados com os dados de origem.
+- Preserve os registros originais do banco.
+- Proteja o arquivo durante o armazenamento e a transferência.
+- Registre a data de geração e a entrega da cópia.
