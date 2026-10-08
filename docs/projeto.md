@@ -32,5 +32,14 @@ Ver `docs/adr/`.
 |---|---|
 
 ## Critérios de validação do projeto
-
+| # | Critério | fonte
+|---| --- | ---|
+|1 | Existe funcionalidade para cadastrar uma doação exigindo tipo de alimento, quantidade e validade/janela de retirada.| Código do cadastro de doação + RN01 no Documento de Análise|
+| 2 | O sistema impede o cadastro de uma doação com validade igual ou anterior à data atual.| Código de validação + Critério 3 da História 1 |
+| 3 | Doações reservadas ou expiradas não aparecem na lista de doações disponíveis. | Código da listagem + Critérios 1 e 2 da História 3|
+|4|Duas ONGs não conseguem reservar simultaneamente a mesma doação.|Código do aceite de doação + RN03 + Critério 2 da História 4|
+|5|Após uma ONG aceitar uma doação, ela deixa de aparecer como disponível para outras ONGs.|Código da reserva + Critério 3 da História 4
+|6|Existe pelo menos uma migração versionada que cria as estruturas necessárias para armazenar as doações.|Pasta migrations|
+|7|O repositório contém instruções suficientes para executar o projeto localmente.|README.md|
+|8|Existe pelo menos um teste automatizado cobrindo as regras de aceite exclusivo da doação.|Pasta tests|
 ## Uso de IA
