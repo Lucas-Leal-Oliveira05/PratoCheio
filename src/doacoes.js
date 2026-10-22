@@ -51,7 +51,23 @@ export async function aceitar(id, ong) {
   }
   return atualizada;
 }
- 
+
+// História — "o doador cancela uma doação ainda disponível".
+// Só cancela se nenhuma ONG aceitou: depois do aceite a ONG já conta com ela
+// (RN09). Como no aceite, a condição fica no UPDATE do repositório, para não
+// perder a corrida entre um cancelamento e um aceite simultâneos.
+export async function cancelar(id) {
+  const doacao = await repo.buscarPorId(id);
+  if (!doacao) {
+    throw new Error('doação não encontrada');
+  }
+  const cancelada = await repo.cancelar(id);
+  if (!cancelada) {
+    throw new Error('só é possível cancelar uma doação ainda disponível');
+  }
+  return cancelada;
+}
+
 export async function listarHistorico() {
   return repo.listarAceitas();
 }

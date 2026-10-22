@@ -43,6 +43,18 @@ export async function aceitar(id, ong) {
   );
   return rows[0];
 }
+
+// Marca a doação como cancelada, só se ainda estiver disponível.
+// Devolve undefined se ela já foi aceita (ou cancelada) antes.
+export async function cancelar(id) {
+  const { rows } = await query(
+    `UPDATE doacoes SET status = 'cancelada'
+     WHERE id = ? AND status = 'disponivel'
+     RETURNING *`,
+    [Number(id)]
+  );
+  return rows[0];
+}
  
 export async function listarAceitas() {
   const { rows } = await query(
