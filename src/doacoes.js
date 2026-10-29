@@ -6,11 +6,15 @@ import * as repo from './repositorio.js';
 // autenticado etc.) — só o necessário para publicar e a história zero
 // funcionar de ponta a ponta. CRUD completo fica para uma próxima iteração.
  
-// História zero — "um doador publica uma doação".
-// Critério: tipo, quantidade e validade são obrigatórios.
+// História 1 — "um doador cadastra uma doação".
+// Critério 2: tipo, quantidade e validade são obrigatórios (RN01).
+// Critério 3: a validade precisa ser futura; hoje ou antes é recusado (RN13).
 export async function criarDoacao({ tipo, quantidade, validade }) {
   if (!tipo || !quantidade || !validade) {
     throw new Error('tipo, quantidade e validade são obrigatórios');
+  }
+  if (validade <= hoje()) {
+    throw new Error('a validade precisa ser uma data futura');
   }
   return repo.inserir({ tipo, quantidade, validade });
 }
@@ -73,6 +77,12 @@ export async function listarHistorico() {
 }
  
 function estaExpirada(validade) {
-  const hoje = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
-  return validade < hoje;
+  return validade < hoje();
+}
+
+// 'YYYY-MM-DD' no fuso de Brasília, mesmo formato que o <input type="date"> manda.
+// Antes era toISOString(), que dá a data em UTC: depois das 21h aqui já é o dia
+// seguinte, e uma doação com validade para amanhã seria recusada como "hoje".
+function hoje() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 }
