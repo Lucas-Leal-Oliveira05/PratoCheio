@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
 import { criarApp } from '../src/app.js';
-import { migrar, limparBanco, encerrar } from '../src/db.js';
+import { migrar, limparBanco, encerrar, query } from '../src/db.js';
  
 const app = criarApp();
  
@@ -123,12 +123,19 @@ describe('aceitar uma doação', () => {
   });
  
   it('recusa aceitar uma doação fora da validade', async () => {
-    const doacao = await publicarDoacao({ validade: '2000-01-01' });
- 
+    // A API não deixa mais cadastrar validade no passado (RN13), então a doação
+    // vencida entra direto no banco, como uma que venceu depois de publicada.
+    const { rows } = await query(
+      `INSERT INTO doacoes (tipo, quantidade, validade) VALUES (?, ?, ?) RETURNING *`,
+      ['Sopa', '10 porções', '2000-01-01']
+    );
+    const doacao = rows[0];
+
     const res = await request(app)
       .post(`/api/doacoes/${doacao.id}/aceitar`)
       .send({ ong: 'ONG Mão Amiga' });
- 
+
     expect(res.status).toBe(400);
+    expect(res.body.erro).toMatch(/fora da validade/);
   });
 });
