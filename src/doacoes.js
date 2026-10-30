@@ -9,9 +9,19 @@ import * as repo from './repositorio.js';
 // História 1 — "um doador cadastra uma doação".
 // Critério 2: tipo, quantidade e validade são obrigatórios (RN01).
 // Critério 3: a validade precisa ser futura; hoje ou antes é recusado (RN13).
-export async function criarDoacao({ tipo, quantidade, validade }) {
+export async function criarDoacao(dados) {
+  const tipo = semEspacos(dados.tipo);
+  const quantidade = semEspacos(dados.quantidade);
+  const validade = semEspacos(dados.validade);
+
   if (!tipo || !quantidade || !validade) {
     throw new Error('tipo, quantidade e validade são obrigatórios');
+  }
+  // A validade é comparada como texto logo abaixo, então tem que ser uma data
+  // de verdade em 'AAAA-MM-DD'. Sem isso, '31/12/2099' passava por futura e
+  // '2099-02-30' era aceita.
+  if (!ehDataValida(validade)) {
+    throw new Error('validade inválida: use uma data real no formato AAAA-MM-DD');
   }
   if (validade <= hoje()) {
     throw new Error('a validade precisa ser uma data futura');
@@ -85,4 +95,16 @@ function estaExpirada(validade) {
 // seguinte, e uma doação com validade para amanhã seria recusada como "hoje".
 function hoje() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+}
+
+// '2099-02-30' tem o formato certo, mas o Date "conserta" para 2 de março;
+// por isso a volta para texto tem que bater com o que chegou.
+function ehDataValida(texto) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(texto)) return false;
+  const data = new Date(`${texto}T00:00:00Z`);
+  return !Number.isNaN(data.getTime()) && data.toISOString().slice(0, 10) === texto;
+}
+
+function semEspacos(valor) {
+  return typeof valor === 'string' ? valor.trim() : valor;
 }
