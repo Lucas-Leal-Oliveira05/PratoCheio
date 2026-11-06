@@ -1,5 +1,12 @@
 import { query } from './db.js';
+ 
 
+const STATUS = {
+  DISPONIVEL: 'disponivel',
+  ACEITA: 'aceita',
+  CANCELADA: 'cancelada'
+}
+// Insere a doação e devolve a linha criada.
 export async function inserir({ tipo, quantidade, validade }) {
   const { rows } = await query(
     `INSERT INTO doacoes (tipo, quantidade, validade)
@@ -13,9 +20,7 @@ export async function inserir({ tipo, quantidade, validade }) {
 
 export async function listarDisponiveis() {
   const { rows } = await query(
-    `SELECT * FROM doacoes
-     WHERE status = 'disponivel'
-     ORDER BY criada_em DESC`
+    `SELECT * FROM doacoes WHERE status = '${STATUS.DISPONIVEL}' ORDER BY criada_em DESC`
   );
 
   return rows;
@@ -32,12 +37,8 @@ export async function buscarPorId(id) {
 
 export async function aceitar(id, ong) {
   const { rows } = await query(
-    `UPDATE doacoes
-     SET status = 'aceita',
-         ong = $1,
-         aceita_em = NOW()
-     WHERE id = $2
-       AND status = 'disponivel'
+    `UPDATE doacoes SET status = '${STATUS.ACEITA}', ong = ?, aceita_em = datetime('now')
+     WHERE id = ? AND status = 'disponivel'
      RETURNING *`,
     [ong, Number(id)]
   );
@@ -47,10 +48,8 @@ export async function aceitar(id, ong) {
 
 export async function cancelar(id) {
   const { rows } = await query(
-    `UPDATE doacoes
-     SET status = 'cancelada'
-     WHERE id = $1
-       AND status = 'disponivel'
+    `UPDATE doacoes SET status = '${STATUS.CANCELADA}'
+     WHERE id = ? AND status = 'disponivel'
      RETURNING *`,
     [Number(id)]
   );
