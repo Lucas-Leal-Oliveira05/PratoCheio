@@ -37,8 +37,12 @@ export async function buscarPorId(id) {
 
 export async function aceitar(id, ong) {
   const { rows } = await query(
-    `UPDATE doacoes SET status = '${STATUS.ACEITA}', ong = ?, aceita_em = datetime('now')
-     WHERE id = ? AND status = 'disponivel'
+    `UPDATE doacoes
+     SET status = '${STATUS.ACEITA}',
+         ong = $1,
+         aceita_em = NOW()
+     WHERE id = $2
+       AND status = '${STATUS.DISPONIVEL}'
      RETURNING *`,
     [ong, Number(id)]
   );
