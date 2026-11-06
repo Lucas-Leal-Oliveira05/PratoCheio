@@ -163,6 +163,16 @@ Como representante de uma ONG receptora, quero gerenciar as doações disponíve
 **Quando** informar uma data de validade anterior ou igual à data atual,
 **Então** o sistema deve informar que a validade precisa ser futura para concluir o cadastro.
 
+**Fatias (Unidade 3)**
+
+Os critérios 1 e 2 já funcionavam desde o walking skeleton. O que faltava era o critério 3, e é por ele que a história começa.
+
+| Fatia | O que entrega | Critério da fatia |
+|---|---|---|
+| 1 | O cadastro recusa validade de hoje ou anterior (RN13) | **Dado** que o doador está cadastrando uma doação, **quando** informa uma validade anterior ou igual a hoje, **então** o sistema recusa com "a validade precisa ser uma data futura" e a doação não aparece para as ONGs. |
+| 2 | O formulário do doador não oferece hoje nem datas passadas no calendário | **Dado** que o doador abre o formulário de nova doação, **quando** escolhe a validade, **então** o primeiro dia que o campo aceita é amanhã. |
+| 3 | A recusa por campo vazio diz qual campo falta | **Dado** que o doador deixa a quantidade em branco, **quando** confirma o cadastro, **então** o sistema recusa e a mensagem nomeia "quantidade". |
+
 ---
 
 ### História 3 - Visualizar doações disponíveis

@@ -183,3 +183,25 @@ A revisão será considerada atendida quando houver um procedimento testado que:
 - Preserve os registros originais do banco.
 - Proteja o arquivo durante o armazenamento e a transferência.
 - Registre a data de geração e a entrega da cópia.
+
+## Revisão — 22/10/2026 (testes apagaram as doações do piloto)
+
+**Status:** decisão continua válida, com complemento. Ver ADR 0002.
+
+### O que mudou no contexto?
+O piloto já tinha doações reais. Os testes foram executados na máquina do piloto com a configuração apontando para o banco real, e `limparBanco()` apagou todas as doações. O risco que esta ADR já listava, "Ter testes afetados por dados compartilhados entre integrantes", aconteceu no sentido inverso: os testes afetaram os dados reais. A mitigação prevista ("Isolar os dados de teste e garantir limpeza controlada após cada execução") não estava implementada: o isolamento dependia só do `vitest.config`.
+
+### Por que a decisão continua?
+O acidente não foi causado pela escolha do banco, e sim por os testes poderem ser apontados para qualquer banco e a limpeza não conferir onde estava. Aconteceria igual com SQLite, PostgreSQL local, contêiner ou Supabase. Continuam valendo a migração para PostgreSQL no Supabase, o momento (só na Unidade 3) e as alternativas avaliadas.
+
+O que muda é o peso de um contra já listado. Num banco **compartilhado** como o do Supabase, um teste apontado para o lugar errado apagaria os dados de todos de uma vez. Por isso a migração ganha uma condição a mais.
+
+### O que esta revisão acrescenta
+- Na Unidade 2 (SQLite), as duas proteções do ADR 0002 ficam em `src/db.js`: sob o Vitest o banco é sempre `:memory:`, e `limparBanco()` recusa qualquer outro banco.
+- Na Unidade 3 (PostgreSQL), os testes **nunca** usam o banco do Supabase. Eles usam o PostgreSQL do contêiner `services: postgres` do CI (já esboçado, comentado, em `.github/workflows/ci.yml`) ou um banco local dedicado, lido de uma variável própria (`TEST_DATABASE_URL`), nunca de `DATABASE_URL`. `limparBanco()` passa a conferir `SELECT current_database()` e recusa se o nome não terminar em `_teste`.
+- Quem paga: o responsável pela persistência, que adapta as duas proteções na refatoração do `src/db.js`, e a equipe, que precisa de um PostgreSQL de teste (contêiner) para rodar a suíte localmente.
+
+### Critério de validação acrescentado
+| O que deve continuar igual depois da migração | Como validar |
+|---|---|
+| Os testes não apagam nem alteram dados de um banco que não seja o de teste | `npm test` com `tests/isolamento-banco.test.js` adaptado: com a configuração apontando para um banco que não termina em `_teste`, `limparBanco()` falha e a contagem de doações não muda |

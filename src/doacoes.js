@@ -6,11 +6,25 @@ import * as repo from './repositorio.js';
 // autenticado etc.) — só o necessário para publicar e a história zero
 // funcionar de ponta a ponta. CRUD completo fica para uma próxima iteração.
  
-// História zero — "um doador publica uma doação".
-// Critério: tipo, quantidade e validade são obrigatórios.
-export async function criarDoacao({ tipo, quantidade, validade }) {
+// História 1 — "um doador cadastra uma doação".
+// Critério 2: tipo, quantidade e validade são obrigatórios (RN01).
+// Critério 3: a validade precisa ser futura; hoje ou antes é recusado (RN13).
+export async function criarDoacao(dados) {
+  const tipo = semEspacos(dados.tipo);
+  const quantidade = semEspacos(dados.quantidade);
+  const validade = semEspacos(dados.validade);
+
   if (!tipo || !quantidade || !validade) {
     throw new Error('tipo, quantidade e validade são obrigatórios');
+  }
+  // A validade é comparada como texto logo abaixo, então tem que ser uma data
+  // de verdade em 'AAAA-MM-DD'. Sem isso, '31/12/2099' passava por futura e
+  // '2099-02-30' era aceita.
+  if (!ehDataValida(validade)) {
+    throw new Error('validade inválida: use uma data real no formato AAAA-MM-DD');
+  }
+  if (validade <= hoje()) {
+    throw new Error('a validade precisa ser uma data futura');
   }
   return repo.inserir({ tipo, quantidade, validade });
 }
@@ -51,12 +65,46 @@ export async function aceitar(id, ong) {
   }
   return atualizada;
 }
- 
+
+// História — "o doador cancela uma doação ainda disponível".
+// Só cancela se nenhuma ONG aceitou: depois do aceite a ONG já conta com ela
+// (RN09). Como no aceite, a condição fica no UPDATE do repositório, para não
+// perder a corrida entre um cancelamento e um aceite simultâneos.
+export async function cancelar(id) {
+  const doacao = await repo.buscarPorId(id);
+  if (!doacao) {
+    throw new Error('doação não encontrada');
+  }
+  const cancelada = await repo.cancelar(id);
+  if (!cancelada) {
+    throw new Error('só é possível cancelar uma doação ainda disponível');
+  }
+  return cancelada;
+}
+
 export async function listarHistorico() {
   return repo.listarAceitas();
 }
  
 function estaExpirada(validade) {
-  const hoje = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
-  return validade < hoje;
+  return validade < hoje();
+}
+
+// 'YYYY-MM-DD' no fuso de Brasília, mesmo formato que o <input type="date"> manda.
+// Antes era toISOString(), que dá a data em UTC: depois das 21h aqui já é o dia
+// seguinte, e uma doação com validade para amanhã seria recusada como "hoje".
+function hoje() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+}
+
+// '2099-02-30' tem o formato certo, mas o Date "conserta" para 2 de março;
+// por isso a volta para texto tem que bater com o que chegou.
+function ehDataValida(texto) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(texto)) return false;
+  const data = new Date(`${texto}T00:00:00Z`);
+  return !Number.isNaN(data.getTime()) && data.toISOString().slice(0, 10) === texto;
+}
+
+function semEspacos(valor) {
+  return typeof valor === 'string' ? valor.trim() : valor;
 }

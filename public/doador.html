@@ -43,7 +43,21 @@
         : '<li>Nenhuma doação disponível no momento.</li>';
       for (const d of doacoes) {
         const li = document.createElement('li');
-        li.textContent = `${d.tipo} — ${d.quantidade} (até ${d.validade})`;
+        li.textContent = `${d.tipo} — ${d.quantidade} (até ${d.validade}) `;
+        const cancelar = document.createElement('button');
+        cancelar.textContent = 'Cancelar doação';
+        cancelar.onclick = async () => {
+          if (!confirm(`Cancelar a doação de "${d.tipo}"?`)) return;
+          const res = await fetch(`/api/doacoes/${d.id}/cancelar`, { method: 'POST' });
+          const corpo = await res.json();
+          if (!res.ok) {
+            mostrarAviso(corpo.erro, 'erro');
+          } else {
+            mostrarAviso(`Doação de "${corpo.tipo}" cancelada.`, 'sucesso');
+          }
+          carregar();
+        };
+        li.appendChild(cancelar);
         lista.appendChild(li);
       }
     }

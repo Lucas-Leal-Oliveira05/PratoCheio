@@ -9,13 +9,31 @@
 import { createRequire } from 'node:module';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite');
  
-const ARQUIVO = process.env.DATABASE_FILE || 'dados.sqlite';
- 
+// Banco exclusivo dos testes: SQLite em memória, que some ao fim da execução.
+export const BANCO_DE_TESTE = ':memory:';
+
+// Rodando sob o Vitest, o banco é SEMPRE o de teste: nem DATABASE_FILE, nem
+// outro vitest.config, nem a máquina em que roda conseguem trocá-lo (ADR 0002).
+function arquivoDoBanco() {
+  if (process.env.VITEST) return BANCO_DE_TESTE;
+  return process.env.DATABASE_FILE || 'dados.sqlite';
+}
+
 let db;
- 
+let arquivoEmUso;
+
 export function conexao() {
-  if (!db) db = new DatabaseSync(ARQUIVO);
+  if (!db) {
+    arquivoEmUso = arquivoDoBanco();
+    db = new DatabaseSync(arquivoEmUso);
+  }
   return db;
+}
+
+/** Qual banco esta conexão está usando (':memory:' nos testes). */
+export function bancoEmUso() {
+  conexao();
+  return arquivoEmUso;
 }
  
 /**
@@ -53,8 +71,16 @@ export async function migrar() {
   }
 }
  
-/** Apaga todos os dados. Usado pelos testes. */
+/**
+ * Apaga todos os dados. Usado pelos testes.
+ * Recusa (lança erro, sem apagar nada) se o banco em uso não for o de teste.
+ * É a segunda proteção do ADR 0002, caso a primeira (arquivoDoBanco) seja contornada.
+ */
 export async function limparBanco() {
+  const banco = bancoEmUso();
+  if (banco !== BANCO_DE_TESTE) {
+    throw new Error(`limparBanco recusado: o banco em uso (${banco}) não é o banco de teste`);
+  }
   conexao().exec('DELETE FROM doacoes');
 }
  
