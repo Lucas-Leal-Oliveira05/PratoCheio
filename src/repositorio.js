@@ -6,6 +6,12 @@
 //   const { rows } = await query('SELECT * FROM doacoes WHERE id = ?', [id]);
 import { query } from './db.js';
  
+
+const STATUS = {
+  DISPONIVEL: 'disponivel',
+  ACEITA: 'aceita',
+  CANCELADA: 'cancelada'
+}
 // Insere a doação e devolve a linha criada.
 export async function inserir({ tipo, quantidade, validade }) {
   const { rows } = await query(
@@ -18,7 +24,7 @@ export async function inserir({ tipo, quantidade, validade }) {
 // Devolve apenas as doações com status 'disponivel'.
 export async function listarDisponiveis() {
   const { rows } = await query(
-    `SELECT * FROM doacoes WHERE status = 'disponivel' ORDER BY criada_em DESC`
+    `SELECT * FROM doacoes WHERE status = '${STATUS.DISPONIVEL}' ORDER BY criada_em DESC`
   );
   return rows;
 }
@@ -36,7 +42,7 @@ export async function buscarPorId(id) {
 // condição, duas requisições concorrentes poderiam "ganhar" a mesma doação.
 export async function aceitar(id, ong) {
   const { rows } = await query(
-    `UPDATE doacoes SET status = 'aceita', ong = ?, aceita_em = datetime('now')
+    `UPDATE doacoes SET status = '${STATUS.ACEITA}', ong = ?, aceita_em = datetime('now')
      WHERE id = ? AND status = 'disponivel'
      RETURNING *`,
     [ong, Number(id)]
@@ -48,7 +54,7 @@ export async function aceitar(id, ong) {
 // Devolve undefined se ela já foi aceita (ou cancelada) antes.
 export async function cancelar(id) {
   const { rows } = await query(
-    `UPDATE doacoes SET status = 'cancelada'
+    `UPDATE doacoes SET status = '${STATUS.CANCELADA}'
      WHERE id = ? AND status = 'disponivel'
      RETURNING *`,
     [Number(id)]
