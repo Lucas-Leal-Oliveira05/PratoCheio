@@ -1,50 +1,49 @@
-
-import pg from 'pg';
-import { createRequire } from 'node:module';
+import pg from "pg";
+import { createRequire } from "node:module";
 
 const { Pool } = pg;
 const require = createRequire(import.meta.url);
-const { DatabaseSync } = require('node:sqlite');
+const { DatabaseSync } = require("node:sqlite");
 
-export const BANCO_DE_TESTE = ':memory:';
+export const BANCO_DE_TESTE = ":memory:";
 
 let pool;
 let dbSqlite;
 let arquivoEmUso;
 
 function tipoDeBanco() {
-  const emTeste = process.env.VITEST === 'true';
+  const emTeste = process.env.VITEST === "true";
 
   // Nos testes, PostgreSQL tem prioridade quando configurado.
   if (emTeste && process.env.DATABASE_URL_TEST) {
-    return 'postgres-teste';
+    return "postgres-teste";
   }
 
   // Sem DATABASE_URL_TEST, os testes antigos usam SQLite em memória.
   if (emTeste) {
-    return 'sqlite-teste';
+    return "sqlite-teste";
   }
 
   if (process.env.DATABASE_URL) {
-    return 'postgres';
+    return "postgres";
   }
 
   // Compatibilidade com os testes que simulam o banco antigo do piloto.
   if (process.env.DATABASE_FILE) {
-    return 'sqlite-arquivo';
+    return "sqlite-arquivo";
   }
 
-  throw new Error('DATABASE_URL não configurada');
+  throw new Error("DATABASE_URL não configurada");
 }
 
 export function bancoEmUso() {
   const tipo = tipoDeBanco();
 
-  if (tipo === 'postgres-teste' || tipo === 'sqlite-teste') {
+  if (tipo === "postgres-teste" || tipo === "sqlite-teste") {
     return BANCO_DE_TESTE;
   }
 
-  if (tipo === 'sqlite-arquivo') {
+  if (tipo === "sqlite-arquivo") {
     return process.env.DATABASE_FILE;
   }
 
@@ -54,18 +53,18 @@ export function bancoEmUso() {
 export function conexao() {
   const tipo = tipoDeBanco();
 
-  if (tipo === 'postgres' || tipo === 'postgres-teste') {
+  if (tipo === "postgres" || tipo === "postgres-teste") {
     if (!pool) {
       const databaseUrl =
-        tipo === 'postgres-teste'
+        tipo === "postgres-teste"
           ? process.env.DATABASE_URL_TEST
           : process.env.DATABASE_URL;
 
       pool = new Pool({
         connectionString: databaseUrl,
-        ssl: databaseUrl.includes('supabase')
+        ssl: databaseUrl.includes("supabase")
           ? { rejectUnauthorized: false }
-          : undefined
+          : undefined,
       });
     }
 
@@ -74,9 +73,7 @@ export function conexao() {
 
   if (!dbSqlite) {
     arquivoEmUso =
-      tipo === 'sqlite-teste'
-        ? BANCO_DE_TESTE
-        : process.env.DATABASE_FILE;
+      tipo === "sqlite-teste" ? BANCO_DE_TESTE : process.env.DATABASE_FILE;
 
     dbSqlite = new DatabaseSync(arquivoEmUso);
   }
@@ -87,7 +84,7 @@ export function conexao() {
 export async function query(sql, valores = []) {
   const tipo = tipoDeBanco();
 
-  if (tipo === 'postgres' || tipo === 'postgres-teste') {
+  if (tipo === "postgres" || tipo === "postgres-teste") {
     let indice = 0;
 
     const sqlPostgres = sql.replace(/\?/g, () => {
@@ -99,7 +96,7 @@ export async function query(sql, valores = []) {
 
     return {
       rows: resultado.rows,
-      alteradas: resultado.rowCount
+      alteradas: resultado.rowCount,
     };
   }
 
@@ -111,7 +108,7 @@ export async function query(sql, valores = []) {
 
     return {
       rows,
-      alteradas: rows.length
+      alteradas: rows.length,
     };
   }
 
@@ -119,14 +116,14 @@ export async function query(sql, valores = []) {
 
   return {
     rows: [],
-    alteradas: resultado.changes
+    alteradas: resultado.changes,
   };
 }
 
 export async function migrar() {
   const tipo = tipoDeBanco();
 
-  if (tipo === 'postgres' || tipo === 'postgres-teste') {
+  if (tipo === "postgres" || tipo === "postgres-teste") {
     const banco = conexao();
 
     await banco.query(`
@@ -145,6 +142,11 @@ export async function migrar() {
     await banco.query(`
       ALTER TABLE doacoes
       ADD COLUMN IF NOT EXISTS aceita_em TIMESTAMPTZ
+    `);
+
+    await banco.query(`
+      ALTER TABLE doacoes
+      ALTER COLUMN criada_em SET DEFAULT NOW()
     `);
 
     return;
@@ -167,26 +169,22 @@ export async function migrar() {
 }
 
 export async function limparBanco() {
-  if (process.env.VITEST !== 'true') {
-    throw new Error(
-      'limparBanco recusado: não é o banco de teste'
-    );
+  if (process.env.VITEST !== "true") {
+    throw new Error("limparBanco recusado: não é o banco de teste");
   }
 
   if (bancoEmUso() !== BANCO_DE_TESTE) {
-    throw new Error(
-      'limparBanco recusado: não é o banco de teste'
-    );
+    throw new Error("limparBanco recusado: não é o banco de teste");
   }
 
   const tipo = tipoDeBanco();
 
-  if (tipo === 'postgres-teste') {
-    await conexao().query('DELETE FROM doacoes');
+  if (tipo === "postgres-teste") {
+    await conexao().query("DELETE FROM doacoes");
     return;
   }
 
-  conexao().exec('DELETE FROM doacoes');
+  conexao().exec("DELETE FROM doacoes");
 }
 
 export async function encerrar() {
