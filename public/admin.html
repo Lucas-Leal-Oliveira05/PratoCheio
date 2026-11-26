@@ -3,16 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prato Cheio — Administrador</title>
+  <title>Prato Cheio — Coordenação</title>
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
   <a class="voltar" href="index.html">← voltar</a>
-  <h1>Histórico de doações aceitas</h1>
-  <p class="subtitulo">Quem aceitou cada doação e quando.</p>
- 
+  <h1>Coordenação</h1>
+  <p class="subtitulo">O resultado do mês e quem aceitou cada doação.</p>
+
+  <fieldset>
+    <legend>Resultado do mês</legend>
+    <label for="mes">Mês da publicação</label>
+    <input id="mes" type="month">
+    <button id="consultar">Ver resultado</button>
+  </fieldset>
+
+  <dl class="resultado">
+    <div><dt>Publicadas</dt><dd id="publicadas">—</dd></div>
+    <div><dt>Aceitas</dt><dd id="aceitas">—</dd></div>
+    <div><dt>Coletadas</dt><dd id="coletadas">—</dd></div>
+    <div><dt>Devolvidas</dt><dd id="devolvidas">—</dd></div>
+    <div class="destaque"><dt>Tempo médio até a coleta</dt><dd id="tempo">—</dd></div>
+  </dl>
+
   <div id="aviso"></div>
- 
+
+  <h2>Histórico de doações aceitas</h2>
   <table>
     <thead>
       <tr>
@@ -20,6 +36,7 @@
         <th>Quantidade</th>
         <th>ONG</th>
         <th>Aceita em</th>
+        <th>Situação</th>
       </tr>
     </thead>
     <tbody id="corpo-tabela"></tbody>
@@ -44,23 +61,50 @@
  
       const historico = await res.json();
       if (!historico.length) {
-        corpo.innerHTML = '<tr><td colspan="4">Nenhuma doação aceita ainda.</td></tr>';
+        corpo.innerHTML = '<tr><td colspan="5">Nenhuma doação aceita ainda.</td></tr>';
         return;
       }
- 
+
+      const dataHora = valor => valor
+        ? new Date(valor).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' })
+        : '—';
+
       corpo.innerHTML = '';
       for (const d of historico) {
         const linha = document.createElement('tr');
-        linha.innerHTML = `
-          <td>${d.tipo}</td>
-          <td>${d.quantidade}</td>
-          <td>${d.ong}</td>
-          <td>${d.aceita_em ?? '—'}</td>
-        `;
+        const situacao = d.status === 'coletada' ? `coletada em ${dataHora(d.coletada_em)}` : 'aguardando coleta';
+        for (const texto of [d.tipo, d.quantidade, d.ong, dataHora(d.aceita_em), situacao]) {
+          const celula = document.createElement('td');
+          celula.textContent = texto;
+          linha.appendChild(celula);
+        }
         corpo.appendChild(linha);
       }
     }
- 
+
+    const campoMes = document.getElementById('mes');
+    campoMes.value = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit'
+    }).format(new Date());
+
+    async function carregarResultado() {
+      const res = await fetch(`/api/resultado?mes=${encodeURIComponent(campoMes.value)}`);
+      const r = await res.json();
+      if (!res.ok) {
+        mostrarAviso(r.erro, 'erro');
+        return;
+      }
+      mostrarAviso('', '');
+      document.getElementById('publicadas').textContent = r.publicadas;
+      document.getElementById('aceitas').textContent = r.aceitas;
+      document.getElementById('coletadas').textContent = r.coletadas;
+      document.getElementById('devolvidas').textContent = r.devolvidas;
+      document.getElementById('tempo').textContent = r.tempo_medio_ate_coleta;
+    }
+
+    document.getElementById('consultar').onclick = carregarResultado;
+
+    carregarResultado();
     carregar();
   </script>
 </body>

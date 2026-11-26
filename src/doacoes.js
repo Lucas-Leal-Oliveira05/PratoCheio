@@ -142,6 +142,23 @@ export async function devolver(id, ong, motivo) {
   });
 }
 
+// H4 — a Marta vê o resultado do mês (decisão 9).
+export async function resultadoDoMes(mes) {
+  if (typeof mes !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) {
+    throw new Error('informe o mês no formato AAAA-MM');
+  }
+
+  const numeros = await repo.resultadoDoMes(mes);
+  const horas = numeros.tempo_medio_horas;
+  return {
+    mes,
+    ...numeros,
+    tempo_medio_ate_coleta: horas === null
+      ? 'sem coletas no mês'
+      : `${horas.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h`
+  };
+}
+
 export async function listarAceitasPelaOng(ong) {
   const nome = semEspacos(ong);
   if (!nome) {

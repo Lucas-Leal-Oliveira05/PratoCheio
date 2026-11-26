@@ -66,7 +66,7 @@ export async function cancelar(id) {
 export async function listarAceitas() {
   const { rows } = await query(
     `SELECT * FROM doacoes
-     WHERE status = '${STATUS.ACEITA}'
+     WHERE status IN ('${STATUS.ACEITA}', '${STATUS.COLETADA}')
      ORDER BY aceita_em DESC`
   );
 
@@ -108,6 +108,31 @@ export async function devolver(id, ong, motivo) {
      )
      SELECT * FROM devolvida`,
     [Number(id), ong, motivo]
+  );
+
+  return rows[0];
+}
+
+// H4 — resultado do mês, contado pelo mês da publicação no fuso de Brasília
+// (decisão 9). COUNT volta como bigint e a média como numeric, que o `pg`
+// entrega como texto; os casts deixam os dois como número já aqui.
+export async function resultadoDoMes(mes) {
+  const { rows } = await query(
+    `SELECT
+       COUNT(*)::int AS publicadas,
+       COUNT(*) FILTER (WHERE status IN ('${STATUS.ACEITA}', '${STATUS.COLETADA}'))::int AS aceitas,
+       COUNT(*) FILTER (WHERE status = '${STATUS.COLETADA}')::int AS coletadas,
+       COUNT(*) FILTER (WHERE EXISTS (
+         SELECT 1 FROM devolucoes dv WHERE dv.doacao_id = d.id
+       ))::int AS devolvidas,
+       ROUND(
+         AVG(EXTRACT(EPOCH FROM (coletada_em - criada_em)))
+           FILTER (WHERE status = '${STATUS.COLETADA}') / 3600,
+         1
+       )::float8 AS tempo_medio_horas
+     FROM doacoes d
+     WHERE to_char(criada_em AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM') = $1`,
+    [mes]
   );
 
   return rows[0];
