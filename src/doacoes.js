@@ -115,6 +115,32 @@ export async function confirmarColeta(id, voluntario) {
   return coletada;
 }
 
+// H3 — a ONG devolve uma doação que aceitou e não vai conseguir buscar.
+export async function devolver(id, motivo) {
+  const motivoInformado = semEspacos(motivo);
+  if (!motivoInformado) {
+    throw new Error('informe o motivo da devolução');
+  }
+
+  const doacao = await repo.buscarPorId(id);
+
+  if (!doacao) {
+    throw new Error('doação não encontrada');
+  }
+  if (doacao.status === 'coletada') {
+    throw new Error('doação já coletada não pode ser devolvida');
+  }
+  if (doacao.status !== 'aceita') {
+    throw new Error('só é possível devolver uma doação aceita');
+  }
+
+  const devolvida = await repo.devolver(id, doacao.ong, motivoInformado);
+  if (!devolvida) {
+    throw new Error('só é possível devolver uma doação aceita');
+  }
+  return devolvida;
+}
+
 export async function listarAceitasPelaOng(ong) {
   const nome = semEspacos(ong);
   if (!nome) {

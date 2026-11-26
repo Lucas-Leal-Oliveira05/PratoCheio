@@ -42,6 +42,14 @@ export function criarApp() {
     }
   });
 
+  app.post('/api/doacoes/:id/devolver', async (req, res) => {
+    try {
+      res.json(await doacoes.devolver(req.params.id, req.body?.motivo));
+    } catch (erro) {
+      res.status(400).json({ erro: erro.message });
+    }
+  });
+
   app.get('/api/ongs/:ong/doacoes', async (req, res) => {
     try {
       res.json(await doacoes.listarAceitasPelaOng(req.params.ong));

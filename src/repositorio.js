@@ -87,6 +87,31 @@ export async function confirmarColeta(id, voluntario) {
   return rows[0];
 }
 
+// A doação volta inteira para a lista (sem ONG nem data de aceite) e quem
+// devolveu, com o motivo, fica só na tabela de devoluções. As duas escritas
+// vão no mesmo comando para não existir devolução sem registro.
+export async function devolver(id, ong, motivo) {
+  const { rows } = await query(
+    `WITH devolvida AS (
+       UPDATE doacoes
+       SET status = '${STATUS.DISPONIVEL}',
+           ong = NULL,
+           aceita_em = NULL
+       WHERE id = $1
+         AND status = '${STATUS.ACEITA}'
+         AND lower(ong) = lower($2)
+       RETURNING *
+     ), registro AS (
+       INSERT INTO devolucoes (doacao_id, ong, motivo)
+       SELECT id, $2, $3 FROM devolvida
+     )
+     SELECT * FROM devolvida`,
+    [Number(id), ong, motivo]
+  );
+
+  return rows[0];
+}
+
 export async function listarAceitasPelaOng(ong) {
   const { rows } = await query(
     `SELECT * FROM doacoes
