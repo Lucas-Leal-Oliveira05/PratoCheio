@@ -26,7 +26,12 @@ export async function criarDoacao(dados) {
   if (validade <= hoje()) {
     throw new Error('a validade precisa ser uma data futura');
   }
-  return repo.inserir({ tipo, quantidade, validade });
+  // H1 — CA3: sem doador a doação não tem a quem pertencer.
+  const doador = semEspacos(dados.doador);
+  if (!doador) {
+    throw new Error('informe o doador (nome do estabelecimento) para publicar a doação');
+  }
+  return repo.inserir({ tipo, quantidade, validade, doador });
 }
  
 // História zero — "uma ONG vê as doações disponíveis".
@@ -80,6 +85,77 @@ export async function cancelar(id) {
     throw new Error('só é possível cancelar uma doação ainda disponível');
   }
   return cancelada;
+}
+
+// H2 — o voluntário confirma que buscou a doação.
+// Só uma doação aceita pode ser coletada (decisão 5); confirmar de novo é
+// recusado, para não sobrescrever o horário da primeira coleta (decisão 7).
+export async function confirmarColeta(id, voluntario) {
+  const nome = semEspacos(voluntario);
+  if (!nome) {
+    throw new Error('informe o nome do voluntário que buscou a doação');
+  }
+
+  const doacao = await repo.buscarPorId(id);
+
+  if (!doacao) {
+    throw new Error('doação não encontrada');
+  }
+  if (doacao.status === 'coletada') {
+    throw new Error('a coleta desta doação já foi confirmada');
+  }
+  if (doacao.status !== 'aceita') {
+    throw new Error('a doação ainda não foi aceita por uma ONG: não há coleta para confirmar');
+  }
+
+  const coletada = await repo.confirmarColeta(id, nome);
+  if (!coletada) {
+    throw new Error('a coleta desta doação já foi confirmada');
+  }
+  return coletada;
+}
+
+// H3 — a ONG devolve uma doação que aceitou e não vai conseguir buscar.
+export async function devolver(id, motivo) {
+  const motivoInformado = semEspacos(motivo);
+  if (!motivoInformado) {
+    throw new Error('informe o motivo da devolução');
+  }
+
+  const doacao = await repo.buscarPorId(id);
+
+  if (!doacao) {
+    throw new Error('doação não encontrada');
+  }
+  if (doacao.status === 'coletada') {
+    throw new Error('doação já coletada não pode ser devolvida');
+  }
+  if (doacao.status !== 'aceita') {
+    throw new Error('só é possível devolver uma doação aceita');
+  }
+
+  const devolvida = await repo.devolver(id, doacao.ong, motivoInformado);
+  if (!devolvida) {
+    throw new Error('só é possível devolver uma doação aceita');
+  }
+  return devolvida;
+}
+
+export async function listarAceitasPelaOng(ong) {
+  const nome = semEspacos(ong);
+  if (!nome) {
+    throw new Error('informe o nome da ONG');
+  }
+  return repo.listarAceitasPelaOng(nome);
+}
+
+// H1 — o doador vê as doações que publicou e a situação de cada uma.
+export async function listarDoDoador(doador) {
+  const nome = semEspacos(doador);
+  if (!nome) {
+    throw new Error('informe o doador (nome do estabelecimento)');
+  }
+  return repo.listarDoDoador(nome);
 }
 
 export async function listarHistorico() {

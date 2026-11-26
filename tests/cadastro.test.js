@@ -25,7 +25,7 @@ describe('cadastrar uma doação', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Pão', quantidade: '5 kg', validade: dataDaqui(-1) });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Pão', quantidade: '5 kg', validade: dataDaqui(-1) });
 
     // Então
     expect(res.status).toBe(400);
@@ -43,7 +43,7 @@ describe('cadastrar uma doação', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Pão', quantidade: '5 kg', validade: dataDaqui(0) });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Pão', quantidade: '5 kg', validade: dataDaqui(0) });
 
     // Então
     expect(res.status).toBe(400);
@@ -63,7 +63,7 @@ describe('cadastrar uma doação', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Frutas', quantidade: '3 caixas', validade: amanha });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Frutas', quantidade: '3 caixas', validade: amanha });
 
     // Então
     expect(res.status).toBe(201);
@@ -80,7 +80,7 @@ describe('cadastrar uma doação', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Arroz', quantidade: '20 kg', validade });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Arroz', quantidade: '20 kg', validade });
 
     // Então
     expect(res.status).toBe(201);
@@ -100,7 +100,7 @@ describe('cadastrar uma doação', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Arroz', validade: dataDaqui(3) });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Arroz', validade: dataDaqui(3) });
 
     // Então
     expect(res.status).toBe(400);
@@ -121,7 +121,7 @@ describe('cadastrar uma doação: limites e erros', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Leite', quantidade: '12 litros', validade: '31/12/2099' });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Leite', quantidade: '12 litros', validade: '31/12/2099' });
 
     // Então
     expect(res.status).toBe(400);
@@ -138,7 +138,7 @@ describe('cadastrar uma doação: limites e erros', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: 'Leite', quantidade: '12 litros', validade: '2099-02-30' });
+      .send({ doador: 'Padaria Pão Bom', tipo: 'Leite', quantidade: '12 litros', validade: '2099-02-30' });
 
     // Então
     expect(res.status).toBe(400);
@@ -155,7 +155,7 @@ describe('cadastrar uma doação: limites e erros', () => {
     // Dado / Quando
     const res = await request(app)
       .post('/api/doacoes')
-      .send({ tipo: '   ', quantidade: '12 litros', validade: dataDaqui(3) });
+      .send({ doador: 'Padaria Pão Bom', tipo: '   ', quantidade: '12 litros', validade: dataDaqui(3) });
 
     // Então
     expect(res.status).toBe(400);
@@ -170,7 +170,7 @@ describe('cadastrar uma doação: limites e erros', () => {
   // Então as duas são registradas como doações separadas (não há deduplicação)
   // e cada uma pode ser aceita por uma ONG diferente
   it('mesma doação enviada duas vezes vira duas doações independentes', async () => {
-    const dados = { tipo: 'Sopa', quantidade: '10 porções', validade: dataDaqui(2) };
+    const dados = { doador: 'Padaria Pão Bom', tipo: 'Sopa', quantidade: '10 porções', validade: dataDaqui(2) };
 
     // Dado
     const primeira = await request(app).post('/api/doacoes').send(dados);

@@ -36,7 +36,7 @@ const VALIDADE_FUTURA = '2099-12-31';
 async function publicarDoacao(overrides = {}) {
   const res = await request(app)
     .post('/api/doacoes')
-    .send({ tipo: 'Sopa', quantidade: '10 porções', validade: VALIDADE_FUTURA, ...overrides });
+    .send({ tipo: 'Sopa', quantidade: '10 porções', validade: VALIDADE_FUTURA, doador: 'Padaria Pão Bom', ...overrides });
   return res.body;
 }
  

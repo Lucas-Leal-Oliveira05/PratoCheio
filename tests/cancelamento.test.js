@@ -12,7 +12,7 @@ afterAll(async () => { await encerrar(); });
 async function publicarDoacao() {
   const res = await request(app)
     .post('/api/doacoes')
-    .send({ tipo: 'Sopa', quantidade: '10 porções', validade: '2099-12-31' });
+    .send({ tipo: 'Sopa', quantidade: '10 porções', validade: '2099-12-31', doador: 'Padaria Pão Bom' });
   return res.body;
 }
 

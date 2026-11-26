@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prato Cheio — Confirmar coleta</title>
+  <link rel="stylesheet" href="./estilos.css">
+</head>
+<body>
+  <a class="voltar" href="index.html">← voltar</a>
+  <h1>Confirmar coleta</h1>
+  <p class="subtitulo">Buscou uma doação? Confirme aqui para a ONG e o doador saberem que ela chegou.</p>
+
+  <fieldset>
+    <legend>Quem está buscando</legend>
+    <label for="voluntario">Seu nome</label>
+    <input id="voluntario" placeholder="Ex.: Rui" autocomplete="given-name">
+    <label for="ong">ONG para a qual você busca</label>
+    <input id="ong" placeholder="Ex.: Casa Esperança">
+    <button id="ver">Ver doações para buscar</button>
+  </fieldset>
+
+  <div id="aviso"></div>
+
+  <h2>Doações aceitas pela ONG</h2>
+  <ul id="lista"></ul>
+
+  <script>
+    const campoVoluntario = document.getElementById('voluntario');
+    const campoOng = document.getElementById('ong');
+
+    function lembrar(chave, campo) {
+      try { campo.value = localStorage.getItem(chave) || ''; } catch {}
+      campo.addEventListener('change', () => {
+        try { localStorage.setItem(chave, campo.value.trim()); } catch {}
+      });
+    }
+    lembrar('pratocheio.voluntario', campoVoluntario);
+    lembrar('pratocheio.ong', campoOng);
+
+    function mostrarAviso(mensagem, tipo) {
+      const aviso = document.getElementById('aviso');
+      aviso.textContent = mensagem;
+      aviso.className = mensagem ? `aviso ${tipo}` : '';
+    }
+
+    async function carregar() {
+      const lista = document.getElementById('lista');
+      const ong = campoOng.value.trim();
+      if (!ong) {
+        lista.innerHTML = '<li>Informe a ONG para ver as doações que ela aceitou.</li>';
+        return;
+      }
+
+      const res = await fetch(`/api/ongs/${encodeURIComponent(ong)}/doacoes`);
+      const doacoes = await res.json();
+      if (!res.ok) {
+        mostrarAviso(doacoes.erro, 'erro');
+        return;
+      }
+
+      lista.innerHTML = doacoes.length ? '' : '<li>Nenhuma doação aceita esperando coleta.</li>';
+      for (const d of doacoes) {
+        const li = document.createElement('li');
+        const titulo = document.createElement('strong');
+        titulo.textContent = `${d.tipo} — ${d.quantidade}`;
+        const detalhe = document.createElement('span');
+        detalhe.className = 'situacao';
+        detalhe.textContent = `Doador: ${d.doador} · validade ${d.validade}`;
+
+        const botao = document.createElement('button');
+        botao.textContent = 'Confirmei a coleta';
+        botao.onclick = async () => {
+          const res = await fetch(`/api/doacoes/${d.id}/coleta`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voluntario: campoVoluntario.value })
+          });
+          const corpo = await res.json();
+          if (!res.ok) {
+            mostrarAviso(corpo.erro, 'erro');
+          } else {
+            mostrarAviso(`Coleta de "${corpo.tipo}" confirmada por ${corpo.voluntario}.`, 'sucesso');
+          }
+          carregar();
+        };
+
+        li.append(titulo, detalhe, botao);
+        lista.appendChild(li);
+      }
+    }
+
+    document.getElementById('ver').onclick = () => {
+      mostrarAviso('', '');
+      carregar();
+    };
+
+    carregar();
+  </script>
+</body>
+</html>

@@ -33,7 +33,39 @@ export function criarApp() {
     res.status(400).json({ erro: erro.message });
   }
 });
- 
+
+  app.post('/api/doacoes/:id/coleta', async (req, res) => {
+    try {
+      res.json(await doacoes.confirmarColeta(req.params.id, req.body?.voluntario));
+    } catch (erro) {
+      res.status(400).json({ erro: erro.message });
+    }
+  });
+
+  app.post('/api/doacoes/:id/devolver', async (req, res) => {
+    try {
+      res.json(await doacoes.devolver(req.params.id, req.body?.motivo));
+    } catch (erro) {
+      res.status(400).json({ erro: erro.message });
+    }
+  });
+
+  app.get('/api/ongs/:ong/doacoes', async (req, res) => {
+    try {
+      res.json(await doacoes.listarAceitasPelaOng(req.params.ong));
+    } catch (erro) {
+      res.status(400).json({ erro: erro.message });
+    }
+  });
+
+  app.get('/api/doadores/:doador/doacoes', async (req, res) => {
+    try {
+      res.json(await doacoes.listarDoDoador(req.params.doador));
+    } catch (erro) {
+      res.status(400).json({ erro: erro.message });
+    }
+  });
+
   app.post('/api/doacoes/:id/aceitar', async (req, res) => {
     try {
       res.json(await doacoes.aceitar(req.params.id, req.body?.ong ?? 'ONG'));

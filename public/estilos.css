@@ -476,6 +476,20 @@ li button {
   margin-top: 14px;
 }
 
+li strong {
+  display: block;
+}
+
+.situacao {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 0.88rem;
+
+  color: var(--texto-secundario);
+}
+
 /* Tabela do administrador */
 
 table {

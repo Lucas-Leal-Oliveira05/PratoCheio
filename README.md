@@ -1,5 +1,4 @@
 # Prato Cheio
-=======
 
 Projeto da disciplina **Análise, Projeto e Desenvolvimento Ágil**.
 Conecta doadores de alimentos excedentes a ONGs, antes que a comida se perca.
@@ -13,50 +12,77 @@ Conecta doadores de alimentos excedentes a ONGs, antes que a comida se perca.
 - Lucas Leal de Oliveira — @lucas-leal-oliveira05
 - Yuri David Arins Cidral — @YuriDavid1
 
+## Histórias do Trabalho 3: dono e revisor
+
+| Iteração | História | Dono | Revisor |
+|---|---|---|---|
+| 0 | Iteração 0 (README, definição de pronto, estados da doação) | Yuri | Gabriel |
+| 1 | H1 · O doador acompanha as suas doações | Yuri (fatias 1 e 2) e Gabriel (fatia 3) | Gabriel (fatias 1 e 2) e Yuri (fatia 3) |
+| 2 | H2 · O voluntário confirma a coleta | Gabriel | Lucas |
+| 3 | H3 · A ONG devolve uma doação aceita + Refatoração 2 | Lucas | Bruno |
+| 4 | H4 · A Marta vê o resultado do mês | Bruno | Yuri |
+| F | Fechamento (validação, demo, retrospectiva, `entrega-3`) | Bruno | todos |
+
 ## Como rodar
 
-Requisito: **Node.js 22.13 ou superior**. Mais nada — o banco da Unidade 1 é SQLite, embutido no próprio Node.
+O produto roda sobre **PostgreSQL**. Requisitos:
 
-> Esta é a **stack preferencial** da disciplina. Se o seu grupo optar por outra, registre o ADR de justificativa e garanta os mesmos compromissos: repositório público com CI verde, rota de saúde, testes por um comando, os três comandos documentados aqui no README e banco relacional migrado para PostgreSQL na Unidade 3.
+- **Node.js 22.13 ou superior**
+- **Um PostgreSQL acessível**, com dois bancos: um para o produto e outro só para os testes
+
+### 1. Subir o banco
+
+Com Docker (o mais rápido):
 
 ```bash
-npm install       # só na primeira vez
-npm run db:migrar # cria o schema (arquivo dados.sqlite)
-npm start         # sobe em http://localhost:3000
-npm test          # roda os testes
-npm run dev       # sobe recarregando a cada alteração
+docker run --name pratocheio-db -e POSTGRES_USER=pratocheio -e POSTGRES_PASSWORD=pratocheio \
+  -e POSTGRES_DB=pratocheio -p 5432:5432 -d postgres:16-alpine
+docker exec pratocheio-db createdb -U pratocheio pratocheio_test
 ```
 
-Os testes usam SQLite **em memória**, então não sujam o banco de desenvolvimento.
+Sem Docker, instale o PostgreSQL 16 e crie os bancos `pratocheio` e `pratocheio_test` (pelo pgAdmin ou com `createdb`).
 
-> Ao rodar `npm test` o Node imprime `ExperimentalWarning: SQLite is an experimental feature`.
-> É esperado — o módulo embutido `node:sqlite` ainda é marcado como experimental. Não é erro e não reprova o CI.
+### 2. Configurar o `.env`
 
-> **Atenção:** não deixe o repositório dentro de uma pasta sincronizada (OneDrive, Google Drive, Dropbox) nem em disco de rede. O SQLite precisa de trava de arquivo e nesses lugares falha com `disk I/O error`. Clone em uma pasta local comum, por exemplo `~/dev/`.
+Copie o `.env.example` para `.env` e ajuste usuário e senha. Exemplo com o contêiner acima:
 
-## O banco: SQLite agora, PostgreSQL depois
+```bash
+DATABASE_URL=postgres://pratocheio:pratocheio@localhost:5432/pratocheio
+DATABASE_URL_TEST=postgres://pratocheio:pratocheio@localhost:5432/pratocheio_test
+```
 
-| Unidade | Banco | O que precisa instalar |
-|---|---|---|
-| 1 — Análise | **SQLite** (`node:sqlite`, embutido) | nada além do Node |
-| 2 — Projeto | SQLite | nada |
-| 3 — Construção | **PostgreSQL** (após refatorar) | um PostgreSQL acessível — o caminho é escolha do grupo |
+O `.env` está no `.gitignore`: a senha real nunca vai para o repositório. O `DATABASE_URL_TEST` precisa apontar para um banco **só de testes**, porque a suíte apaga as doações antes de cada teste.
 
-A troca não é acidente de percurso: na Unidade 2 vocês registram a decisão em um **ADR** (alternativas, consequências, riscos) e na Unidade 3 executam a **refatoração** — com os testes existentes provando que o comportamento se manteve.
+### 3. Os comandos
 
-O `src/db.js` foi desenhado para isso: ele expõe `query()` devolvendo `{ rows }`, então a troca do banco fica contida nele e não vaza para as regras de negócio.
+```bash
+npm install       # instala as dependências (só na primeira vez)
+npm run db:migrar # cria ou atualiza as tabelas no banco do DATABASE_URL
+npm start         # sobe em http://localhost:3000
+npm test          # roda os testes no banco do DATABASE_URL_TEST
+```
 
-**Como o PostgreSQL vai subir é decisão do grupo**, comparada no mesmo ADR: instalar o PostgreSQL na máquina, subir um contêiner, ou usar um serviço gerenciado gratuito (Neon, Supabase, Render). A disciplina não impõe o caminho — exige o banco alcançável por `DATABASE_URL`, o schema migrado e o CI verde. Cada opção tem custo e risco diferentes, e reconhecê-los é parte da decisão.
+`npm start` também roda a migração antes de subir, então o `db:migrar` só é necessário para preparar o banco sem subir a aplicação. Para desenvolver, `npm run dev` sobe recarregando a cada alteração.
+
+Para abrir no celular, acesse `http://<ip-do-computador>:3000` na mesma rede Wi-Fi.
+
+## O banco
+
+A migração de SQLite para PostgreSQL foi decidida no [ADR 0001](docs/adr/0001-migração%20de%20banco-adr.md) e executada na Refatoração 1 ([docs/refatoracoes.md](docs/refatoracoes.md)). O `src/db.js` expõe `query()` devolvendo `{ rows }`, então a troca do banco ficou contida nele e não vazou para as regras de negócio.
+
+O CI (`.github/workflows/ci.yml`) sobe um `postgres:16-alpine` como serviço e roda os testes sobre ele a cada push e PR.
+
+Os testes nunca usam o banco do `DATABASE_URL`: sob o Vitest o `src/db.js` só conecta no `DATABASE_URL_TEST`, e o `limparBanco()` recusa qualquer outro banco ([ADR 0002](docs/adr/0002-isolamento-banco-de-teste.md)). Sem `DATABASE_URL_TEST`, ele cai no SQLite em memória que sobrou da Unidade 1, e os testes que usam SQL do PostgreSQL falham: configure o `.env` antes do `npm test`.
 
 ## Estrutura
 
 ```
 src/server.js        entrypoint (npm start)
-src/db.js            conexão e schema do banco (pronto)
+src/db.js            conexão, schema e migração do banco
 src/app.js           rotas da API
-src/doacoes.js       regras de negócio      <- implementar (U1)
-src/repositorio.js   acesso ao banco (SQL)  <- implementar (U1)
-public/index.html    interface (funciona no celular)
+src/doacoes.js       regras de negócio
+src/repositorio.js   acesso ao banco (SQL)
+public/              telas (funcionam no celular)
 tests/               testes automatizados
 docs/analise.md      documento de análise   (Trabalho 1)
 docs/projeto.md      documento de projeto   (Trabalho 2)
@@ -70,42 +96,30 @@ docs/retrospectivas/ retrospectiva de cada iteração
 
 ## Como trabalhar (fluxo de Pull Request)
 
-A partir da Unidade 2, **nada entra direto na `main`**:
+Nada entra direto na `main`:
 
 ```bash
-git checkout -b historia/ong-aceita-doacao
+git checkout main && git pull
+git checkout -b h1/doador-na-publicacao
 # ... implementa, escreve o teste, roda npm test ...
-git commit -m "ONG aceita uma doação e ela sai da lista"
-git push -u origin historia/ong-aceita-doacao
+git commit -m "Publicação exige o doador"
+git push -u origin h1/doador-na-publicacao
 ```
 
-Abra o Pull Request no GitHub, preencha o template, espere o **CI ficar verde** e
-peça a revisão de **outro integrante**. Só então faça o merge.
+Abra o Pull Request no GitHub, preencha o template, espere o **CI ficar verde** e peça a revisão de **outro integrante**. Antes do merge, atualize o branch com a `main`. Depois do merge, confira o CI da `main`: se ficar vermelho, ninguém integra mais nada até ela voltar a ficar verde.
 
 ## Definição de pronto
 
 Pronto, no nosso grupo, é:
 
-- [ ] O CI do PR está verde — onde se confere: aba Checks do PR
+- [ ] O CI do PR está verde, rodando sobre PostgreSQL — onde se confere: aba Checks do PR
 - [ ] O PR foi aprovado por um integrante que não é o autor — onde se confere: aba Reviews do PR
-- [ ] Cada critério de aceite da fatia tem um `it` com o nome do critério (não `it.todo`) — onde se confere: diff do PR, pasta `tests/`
-- [ ] O critério da fatia está escrito em Dado, Quando e Então em `docs/analise.md` — onde se confere: diff do PR, arquivo `docs/analise.md`
-- [ ] A descrição do PR tem História / decisão, Como verificar e Uso de IA preenchidos — onde se confere: descrição do PR
-- [ ] SQL só em `src/repositorio.js`, com `?` no lugar dos valores — onde se confere: diff do PR
+- [ ] Cada critério de aceite da fatia tem um `it` com o nome da regra (não `it.todo`), e a história tem pelo menos um caso limite ou de erro — onde se confere: diff do PR, pasta `tests/`
+- [ ] A descrição do PR tem a história, o critério de origem, as fatias e o Uso de IA preenchidos — onde se confere: descrição do PR
+- [ ] Regra em `src/doacoes.js`, SQL só em `src/repositorio.js` com `$1, $2…` no lugar dos valores — onde se confere: diff do PR
+- [ ] Decisão que muda o modelo está em `## Decisões de projeto` de `docs/projeto.md` — onde se confere: diff do PR
 - [ ] Se o PR mexe em tela, ela abre em 360 × 800 sem rolagem horizontal (RNF02) — onde se confere: tela do celular ou emulação móvel do navegador
-
-## O que já está pronto e o que falta
-
-Pronto: estrutura do projeto, interface básica, rota de saúde, **conexão com o banco e o schema** (`src/db.js`), CI configurado e um teste passando (prova que a aplicação sobe).
-
-Falta (Trabalho 1 — walking skeleton): implementar `src/doacoes.js` (regras) e
-`src/repositorio.js` (SQL) para que a história zero funcione ponta a ponta —
-**um doador publica uma doação → uma ONG vê a doação → a ONG a aceita e ela sai da lista.**
-Os critérios de aceite estão em `tests/doacoes.test.js` como `it.todo`: troque cada um
-por um teste de verdade conforme implementa.
 
 ## Uso de IA
 
-A IA pode participar da produção, mas o grupo é responsável por verificar, testar,
-corrigir e **defender** o resultado. Registre em cada Pull Request o que foi gerado
-com IA e o que vocês alteraram.
+A IA pode participar da produção, mas o grupo é responsável por verificar, testar, corrigir e **defender** o resultado. Registre em cada Pull Request o que foi gerado com IA e o que vocês alteraram.
