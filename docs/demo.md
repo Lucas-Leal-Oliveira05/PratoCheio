@@ -63,6 +63,10 @@ Erro tratado:
 3. Digite `sem voluntário hoje` no motivo e toque em "Devolver doação" // aviso "devolvida. Ela voltou para a lista de disponíveis."; o bolo aparece em "Disponíveis", sem ONG.
 4. Em "Sou um estabelecimento" // o bolo aparece de novo como "Disponível, aguardando uma ONG".
 
+**H4 · Resultado do mês**
+1. Na página inicial, toque em "Coordenação" // o mês atual já vem selecionado e os números aparecem: o pão conta como publicada, aceita e coletada; o bolo como publicada e devolvida; "Tempo médio até a coleta" mostra as horas entre a publicação e a coleta do pão.
+2. Troque o mês para um mês sem doações (por exemplo, janeiro de 2025) e toque em "Ver resultado" // tudo zero e o tempo médio "sem coletas no mês".
+
 ## Testado por
 
 Outro integrante executou este roteiro sem ajuda: **Yuri**, em **19/11**.

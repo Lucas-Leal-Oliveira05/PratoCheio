@@ -109,6 +109,15 @@ describe('H4 · a Marta vê o resultado do mês', () => {
     expect(res.body).toMatchObject({ publicadas: 1, aceitas: 0, devolvidas: 1 });
   });
 
+  it('a doação coletada continua no histórico de aceites da coordenação', async () => {
+    await doacao({ status: 'coletada', publicada: '2025-11-10T08:00:00-03:00', aceita: '2025-11-10T09:00:00-03:00', coletada: '2025-11-10T13:00:00-03:00' });
+
+    const res = await request(app).get('/api/doacoes/historico');
+
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0]).toMatchObject({ status: 'coletada', ong: 'Casa Esperança' });
+  });
+
   it('recusa um mês fora do formato AAAA-MM', async () => {
     const res = await resultado('11-2025');
 
