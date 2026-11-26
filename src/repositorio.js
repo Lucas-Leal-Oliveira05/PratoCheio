@@ -1,12 +1,13 @@
 import { query } from './db.js';
  
 
-const STATUS = {
+export const STATUS = Object.freeze({
   DISPONIVEL: 'disponivel',
   ACEITA: 'aceita',
   COLETADA: 'coletada',
   CANCELADA: 'cancelada'
-}
+});
+
 // Insere a doação e devolve a linha criada.
 export async function inserir({ tipo, quantidade, validade, doador }) {
   const { rows } = await query(
@@ -54,7 +55,7 @@ export async function aceitar(id, ong) {
 export async function cancelar(id) {
   const { rows } = await query(
     `UPDATE doacoes SET status = '${STATUS.CANCELADA}'
-     WHERE id = ? AND status = 'disponivel'
+     WHERE id = ? AND status = '${STATUS.DISPONIVEL}'
      RETURNING *`,
     [Number(id)]
   );
@@ -65,7 +66,7 @@ export async function cancelar(id) {
 export async function listarAceitas() {
   const { rows } = await query(
     `SELECT * FROM doacoes
-     WHERE status = 'aceita'
+     WHERE status = '${STATUS.ACEITA}'
      ORDER BY aceita_em DESC`
   );
 
