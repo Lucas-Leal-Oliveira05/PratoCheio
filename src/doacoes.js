@@ -124,14 +124,22 @@ export async function confirmarColeta(id, voluntario) {
 }
 
 // H3 — a ONG devolve uma doação que aceitou e não vai conseguir buscar.
-export async function devolver(id, motivo) {
+// Só quem aceitou devolve (CA3); o motivo é obrigatório (decisão 8).
+export async function devolver(id, ong, motivo) {
+  const ongInformada = semEspacos(ong);
+  if (!ongInformada) {
+    throw new Error('informe a ONG que está devolvendo a doação');
+  }
   const motivoInformado = semEspacos(motivo);
   if (!motivoInformado) {
     throw new Error('informe o motivo da devolução');
   }
-  return transicionar(id, 'devolver', doacao =>
-    repo.devolver(id, doacao.ong, motivoInformado)
-  );
+  return transicionar(id, 'devolver', doacao => {
+    if (doacao.ong.toLowerCase() !== ongInformada.toLowerCase()) {
+      throw new Error('só a ONG que aceitou a doação pode devolvê-la');
+    }
+    return repo.devolver(id, doacao.ong, motivoInformado);
+  });
 }
 
 export async function listarAceitasPelaOng(ong) {

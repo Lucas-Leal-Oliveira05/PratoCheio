@@ -24,6 +24,9 @@ Copie aqui os critérios de aceite do seu `docs/analise.md` e marque um por um. 
 | 16 | **H2 · CA1.** Dado que a "Casa Esperança" aceitou uma doação, quando o voluntário "Rui" confirma a coleta, então ela passa a coletada, com o nome do voluntário e o horário da coleta. | atende | `tests/coleta.test.js`: "confirma a coleta de uma doação aceita, com o voluntário e o horário"; demo, H2 passos 1 e 2 |
 | 17 | **H2 · CA2.** Dado que a doação ainda está disponível, quando alguém tenta confirmar a coleta, então a confirmação é recusada com mensagem e a doação não muda. | atende | `tests/coleta.test.js`: "recusa confirmar a coleta de uma doação ainda disponível e não muda a doação"; inversão de regra registrada no PR da H2 |
 | 18 | **H2 · CA3.** Dado que a doação foi coletada, quando o doador consulta as suas doações (H1), então ela aparece como coletada. | atende | `tests/coleta.test.js`: "a doação coletada aparece como coletada para o doador"; demo, H2 passo 3 |
+| 19 | **H3 · CA1.** Dado que a "Casa Esperança" aceitou uma doação, quando ela a devolve com o motivo "sem voluntário hoje", então a doação volta para a lista de disponíveis, sem ONG, e o motivo fica registrado. | atende | `tests/devolucao.test.js`: "devolve a doação aceita: volta para a lista sem ONG e o motivo fica registrado"; demo, H3 passos 3 e 4 |
+| 20 | **H3 · CA2.** Dado que a doação já foi coletada, quando a ONG tenta devolvê-la, então a devolução é recusada com mensagem. | atende | `tests/devolucao.test.js`: "recusa devolver uma doação já coletada" |
+| 21 | **H3 · CA3.** Dado que a "Casa Esperança" aceitou a doação, quando outra ONG tenta devolvê-la, então a devolução é recusada e a doação continua aceita pela Casa Esperança. | atende | `tests/devolucao.test.js`: "recusa a devolução feita por outra ONG e a doação continua aceita pela Casa Esperança" |
 
 ## Critérios que não atendem - por quê
 
