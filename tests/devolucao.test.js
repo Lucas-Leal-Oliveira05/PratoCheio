@@ -61,6 +61,44 @@ describe('H3 · a ONG devolve uma doação aceita', () => {
     expect(minhas.body[0].status).toBe('coletada');
   });
 
+  // CA3. Dado que a "Casa Esperança" aceitou a doação, quando outra ONG tenta
+  // devolvê-la, então a devolução é recusada e a doação continua aceita pela
+  // Casa Esperança.
+  it('recusa a devolução feita por outra ONG e a doação continua aceita pela Casa Esperança', async () => {
+    const doacao = await publicarEAceitar('Casa Esperança');
+
+    const res = await devolver(doacao.id, 'Cozinha Solidária', 'sem voluntário hoje');
+
+    expect(res.status).toBe(400);
+    expect(res.body.erro).toBe('só a ONG que aceitou a doação pode devolvê-la');
+
+    const daCasa = await request(app).get(`/api/ongs/${encodeURIComponent('Casa Esperança')}/doacoes`);
+    expect(daCasa.body).toHaveLength(1);
+    expect(daCasa.body[0]).toMatchObject({ id: doacao.id, status: 'aceita', ong: 'Casa Esperança' });
+    const { rows } = await query('SELECT id FROM devolucoes WHERE doacao_id = $1', [doacao.id]);
+    expect(rows).toHaveLength(0);
+  });
+
+  it('recusa devolver sem informar a ONG', async () => {
+    const doacao = await publicarEAceitar();
+
+    const res = await devolver(doacao.id, '', 'sem voluntário hoje');
+
+    expect(res.status).toBe(400);
+    expect(res.body.erro).toBe('informe a ONG que está devolvendo a doação');
+  });
+
+  // Decisão 8: a ONG que devolveu pode aceitar a mesma doação de novo.
+  it('a ONG que devolveu pode aceitar a mesma doação de novo', async () => {
+    const doacao = await publicarEAceitar('Casa Esperança');
+    await devolver(doacao.id, 'Casa Esperança', 'sem voluntário hoje');
+
+    const res = await request(app).post(`/api/doacoes/${doacao.id}/aceitar`).send({ ong: 'Casa Esperança' });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ status: 'aceita', ong: 'Casa Esperança' });
+  });
+
   it('recusa devolver uma doação que ninguém aceitou', async () => {
     const doacao = await publicar();
 

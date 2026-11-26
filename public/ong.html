@@ -18,17 +18,82 @@
   </fieldset>
  
   <div id="aviso"></div>
- 
+
+  <h2>Disponíveis</h2>
   <ul id="lista"></ul>
- 
+
+  <h2>Reservadas pela sua ONG</h2>
+  <ul id="reservadas"></ul>
+
   <script>
     function mostrarAviso(mensagem, tipo) {
       const aviso = document.getElementById('aviso');
       aviso.textContent = mensagem;
       aviso.className = mensagem ? `aviso ${tipo}` : '';
     }
- 
+
+    const campoOng = document.getElementById('ong');
+    try { campoOng.value = localStorage.getItem('pratocheio.ong') || campoOng.value; } catch {}
+    campoOng.addEventListener('change', () => {
+      try { localStorage.setItem('pratocheio.ong', campoOng.value.trim()); } catch {}
+      carregar();
+    });
+
+    async function carregarReservadas() {
+      const lista = document.getElementById('reservadas');
+      const ong = campoOng.value.trim();
+      if (!ong) {
+        lista.innerHTML = '<li>Informe o nome da ONG para ver as reservas.</li>';
+        return;
+      }
+
+      const res = await fetch(`/api/ongs/${encodeURIComponent(ong)}/doacoes`);
+      const doacoes = await res.json();
+      if (!res.ok) {
+        mostrarAviso(doacoes.erro, 'erro');
+        return;
+      }
+
+      lista.innerHTML = doacoes.length ? '' : '<li>Nenhuma doação reservada esperando coleta.</li>';
+      for (const d of doacoes) {
+        const li = document.createElement('li');
+        const titulo = document.createElement('strong');
+        titulo.textContent = `${d.tipo} — ${d.quantidade}`;
+        const detalhe = document.createElement('span');
+        detalhe.className = 'situacao';
+        detalhe.textContent = `Doador: ${d.doador} · validade ${d.validade}`;
+
+        const rotulo = document.createElement('label');
+        rotulo.textContent = 'Não vai conseguir buscar? Motivo da devolução';
+        rotulo.htmlFor = `motivo-${d.id}`;
+        const motivo = document.createElement('input');
+        motivo.id = `motivo-${d.id}`;
+        motivo.placeholder = 'Ex.: sem voluntário hoje';
+
+        const botao = document.createElement('button');
+        botao.textContent = 'Devolver doação';
+        botao.onclick = async () => {
+          const res = await fetch(`/api/doacoes/${d.id}/devolver`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ong: campoOng.value, motivo: motivo.value })
+          });
+          const corpo = await res.json();
+          if (!res.ok) {
+            mostrarAviso(corpo.erro, 'erro');
+          } else {
+            mostrarAviso(`Doação de "${corpo.tipo}" devolvida. Ela voltou para a lista de disponíveis.`, 'sucesso');
+          }
+          carregar();
+        };
+
+        li.append(titulo, detalhe, rotulo, motivo, botao);
+        lista.appendChild(li);
+      }
+    }
+
     async function carregar() {
+      carregarReservadas();
       const res = await fetch('/api/doacoes');
       const doacoes = await res.json();
       const lista = document.getElementById('lista');
@@ -41,7 +106,7 @@
         const botao = document.createElement('button');
         botao.textContent = 'Reservar para coleta';
         botao.onclick = async () => {
-          const ong = document.getElementById('ong').value || 'ONG sem nome';
+          const ong = campoOng.value.trim() || 'ONG sem nome';
           const res = await fetch(`/api/doacoes/${d.id}/aceitar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

@@ -44,7 +44,7 @@ export function criarApp() {
 
   app.post('/api/doacoes/:id/devolver', async (req, res) => {
     try {
-      res.json(await doacoes.devolver(req.params.id, req.body?.motivo));
+      res.json(await doacoes.devolver(req.params.id, req.body?.ong, req.body?.motivo));
     } catch (erro) {
       res.status(400).json({ erro: erro.message });
     }

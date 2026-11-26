@@ -57,6 +57,12 @@ Erro tratado:
 2. Toque em "Confirmei a coleta" // aviso "Coleta de "Pão francês" confirmada por Rui." e o pão sai da lista.
 3. Volte a "Sou um estabelecimento" // o pão aparece como "Coletada para Casa Esperança em …", com o horário da confirmação.
 
+**H3 · Devolução**
+1. Como `Padaria Pão Bom`, publique `Bolo de fubá` / `2 bolos` / validade amanhã. Em "Sou uma ONG", com `Casa Esperança`, reserve o bolo // o bolo sai de "Disponíveis" e aparece em "Reservadas pela sua ONG".
+2. Troque o nome da ONG para `Cozinha Solidária`, volte a `Casa Esperança` e, no bolo, deixe o motivo vazio e toque em "Devolver doação" // erro "informe o motivo da devolução"; o bolo continua reservado.
+3. Digite `sem voluntário hoje` no motivo e toque em "Devolver doação" // aviso "devolvida. Ela voltou para a lista de disponíveis."; o bolo aparece em "Disponíveis", sem ONG.
+4. Em "Sou um estabelecimento" // o bolo aparece de novo como "Disponível, aguardando uma ONG".
+
 ## Testado por
 
 Outro integrante executou este roteiro sem ajuda: **Yuri**, em **19/11**.
