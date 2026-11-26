@@ -1,6 +1,7 @@
 // Regras de negócio das doações.
 // TODO (grupo): implementar conforme as histórias e os critérios de aceite da Unidade 1.
 import * as repo from './repositorio.js';
+import { STATUS } from './repositorio.js';
  
 // Doação mockada: por hora não há CRUD completo (edição, remoção, doador
 // autenticado etc.) — só o necessário para publicar e a história zero
@@ -39,106 +40,106 @@ export async function listarDisponiveis() {
   return repo.listarDisponiveis();
 }
  
-// História zero — "uma ONG aceita uma doação".
-//
-// Critério 1 (aceite): a doação precisa existir, estar disponível e dentro
-// da validade/janela de retirada.
-// Critério 2 (exclusividade): se outra ONG já aceitou, o sistema informa
-// que a doação não está mais disponível.
-// Critério 3 (some da lista): decorre do repositório só listar status
-// 'disponivel' — uma vez aceita, ela para de aparecer.
-export async function aceitar(id, ong) {
+// Decisão 5 do docs/projeto.md: de qual estado cada operação parte e o que
+// responder quando a doação está em outro. `padrao` vale para qualquer
+// estado que não tenha mensagem própria.
+const TRANSICOES = {
+  aceitar: {
+    de: STATUS.DISPONIVEL,
+    recusas: { padrao: 'doação não está mais disponível' }
+  },
+  cancelar: {
+    de: STATUS.DISPONIVEL,
+    recusas: { padrao: 'só é possível cancelar uma doação ainda disponível' }
+  },
+  coletar: {
+    de: STATUS.ACEITA,
+    recusas: {
+      [STATUS.COLETADA]: 'a coleta desta doação já foi confirmada',
+      padrao: 'a doação ainda não foi aceita por uma ONG: não há coleta para confirmar'
+    }
+  },
+  devolver: {
+    de: STATUS.ACEITA,
+    recusas: {
+      [STATUS.COLETADA]: 'doação já coletada não pode ser devolvida',
+      padrao: 'só é possível devolver uma doação aceita'
+    }
+  }
+};
+
+async function buscarParaTransicao(id, operacao) {
   const doacao = await repo.buscarPorId(id);
- 
   if (!doacao) {
     throw new Error('doação não encontrada');
   }
-  if (doacao.status !== 'disponivel') {
-    throw new Error('doação não está mais disponível');
+
+  const { de, recusas } = TRANSICOES[operacao];
+  if (doacao.status !== de) {
+    throw new Error(recusas[doacao.status] ?? recusas.padrao);
   }
-  if (estaExpirada(doacao.validade)) {
-    throw new Error('doação fora da validade');
-  }
- 
-  // Aceite atômico no banco: se, entre a leitura acima e este UPDATE, outra
-  // ONG aceitou primeiro, a condição `status = 'disponivel'` do repositório
-  // não encontra a linha e devolve undefined — é o mesmo critério 2, só que
-  // cobrindo a corrida entre duas requisições simultâneas.
-  const atualizada = await repo.aceitar(id, ong);
+  return doacao;
+}
+
+// O UPDATE de cada operação repete a condição de estado. Se ele não acha a
+// linha, outra requisição mudou a doação entre a leitura e a escrita: lemos
+// de novo para responder com a mensagem do estado atual.
+async function transicionar(id, operacao, gravar) {
+  const doacao = await buscarParaTransicao(id, operacao);
+  const atualizada = await gravar(doacao);
   if (!atualizada) {
-    throw new Error('doação não está mais disponível');
+    await buscarParaTransicao(id, operacao);
+    throw new Error(TRANSICOES[operacao].recusas.padrao);
   }
   return atualizada;
 }
 
-// História — "o doador cancela uma doação ainda disponível".
-// Só cancela se nenhuma ONG aceitou: depois do aceite a ONG já conta com ela
-// (RN09). Como no aceite, a condição fica no UPDATE do repositório, para não
-// perder a corrida entre um cancelamento e um aceite simultâneos.
-export async function cancelar(id) {
-  const doacao = await repo.buscarPorId(id);
-  if (!doacao) {
-    throw new Error('doação não encontrada');
-  }
-  const cancelada = await repo.cancelar(id);
-  if (!cancelada) {
-    throw new Error('só é possível cancelar uma doação ainda disponível');
-  }
-  return cancelada;
+// História zero — "uma ONG aceita uma doação".
+// Critério 1: a doação precisa existir, estar disponível e dentro da validade.
+// Critério 2: se outra ONG já aceitou, informa que não está mais disponível,
+// inclusive quando as duas chegam ao mesmo tempo (condição no UPDATE).
+// Critério 3: o repositório só lista 'disponivel', então a aceita some.
+export async function aceitar(id, ong) {
+  return transicionar(id, 'aceitar', async doacao => {
+    if (estaExpirada(doacao.validade)) {
+      throw new Error('doação fora da validade');
+    }
+    return repo.aceitar(id, ong);
+  });
 }
 
-// H2 — o voluntário confirma que buscou a doação.
-// Só uma doação aceita pode ser coletada (decisão 5); confirmar de novo é
+// O doador só cancela enquanto nenhuma ONG aceitou (decisão 4, RN09).
+export async function cancelar(id) {
+  return transicionar(id, 'cancelar', () => repo.cancelar(id));
+}
+
+// H2 — o voluntário confirma que buscou a doação. Confirmar de novo é
 // recusado, para não sobrescrever o horário da primeira coleta (decisão 7).
 export async function confirmarColeta(id, voluntario) {
   const nome = semEspacos(voluntario);
   if (!nome) {
     throw new Error('informe o nome do voluntário que buscou a doação');
   }
-
-  const doacao = await repo.buscarPorId(id);
-
-  if (!doacao) {
-    throw new Error('doação não encontrada');
-  }
-  if (doacao.status === 'coletada') {
-    throw new Error('a coleta desta doação já foi confirmada');
-  }
-  if (doacao.status !== 'aceita') {
-    throw new Error('a doação ainda não foi aceita por uma ONG: não há coleta para confirmar');
-  }
-
-  const coletada = await repo.confirmarColeta(id, nome);
-  if (!coletada) {
-    throw new Error('a coleta desta doação já foi confirmada');
-  }
-  return coletada;
+  return transicionar(id, 'coletar', () => repo.confirmarColeta(id, nome));
 }
 
 // H3 — a ONG devolve uma doação que aceitou e não vai conseguir buscar.
-export async function devolver(id, motivo) {
+// Só quem aceitou devolve (CA3); o motivo é obrigatório (decisão 8).
+export async function devolver(id, ong, motivo) {
+  const ongInformada = semEspacos(ong);
+  if (!ongInformada) {
+    throw new Error('informe a ONG que está devolvendo a doação');
+  }
   const motivoInformado = semEspacos(motivo);
   if (!motivoInformado) {
     throw new Error('informe o motivo da devolução');
   }
-
-  const doacao = await repo.buscarPorId(id);
-
-  if (!doacao) {
-    throw new Error('doação não encontrada');
-  }
-  if (doacao.status === 'coletada') {
-    throw new Error('doação já coletada não pode ser devolvida');
-  }
-  if (doacao.status !== 'aceita') {
-    throw new Error('só é possível devolver uma doação aceita');
-  }
-
-  const devolvida = await repo.devolver(id, doacao.ong, motivoInformado);
-  if (!devolvida) {
-    throw new Error('só é possível devolver uma doação aceita');
-  }
-  return devolvida;
+  return transicionar(id, 'devolver', doacao => {
+    if (doacao.ong.toLowerCase() !== ongInformada.toLowerCase()) {
+      throw new Error('só a ONG que aceitou a doação pode devolvê-la');
+    }
+    return repo.devolver(id, doacao.ong, motivoInformado);
+  });
 }
 
 export async function listarAceitasPelaOng(ong) {
