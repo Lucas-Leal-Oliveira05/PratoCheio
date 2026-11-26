@@ -20,8 +20,8 @@ Conecta doadores de alimentos excedentes a ONGs, antes que a comida se perca.
 | 1 | H1 · O doador acompanha as suas doações | Yuri (fatias 1 e 2) e Gabriel (fatia 3) | Gabriel (fatias 1 e 2) e Yuri (fatia 3) |
 | 2 | H2 · O voluntário confirma a coleta | Gabriel | Lucas |
 | 3 | H3 · A ONG devolve uma doação aceita + Refatoração 2 | Lucas | Bruno |
-| 4 | H4 · A Marta vê o resultado do mês | Bruno | Yuri |
-| F | Fechamento (validação, demo, retrospectiva, `entrega-3`) | Bruno | todos |
+| 4 | H4 · A Marta vê o resultado do mês | Yuri | Bruno |
+| F | Fechamento (validação, demo, retrospectiva, `entrega-3`) | Yuri | todos |
 
 ## Como rodar
 
