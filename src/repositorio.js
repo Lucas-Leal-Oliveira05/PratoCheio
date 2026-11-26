@@ -66,7 +66,7 @@ export async function cancelar(id) {
 export async function listarAceitas() {
   const { rows } = await query(
     `SELECT * FROM doacoes
-     WHERE status = '${STATUS.ACEITA}'
+     WHERE status IN ('${STATUS.ACEITA}', '${STATUS.COLETADA}')
      ORDER BY aceita_em DESC`
   );
 
